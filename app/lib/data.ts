@@ -233,16 +233,6 @@ export const videoNames = [
   "IMG_4171.mp4"
 ]
 
-export const sampleVideoData: VideoData[] = videoNames.map((filename: string, index) => ({
-  filename,
-  sourceUrl: "",
-  transcript: sampleTranscripts[index],
-  id: filename,
-  position: index,
-  duration: 60,
-  status: VideoDataStatus.COMPLETE,
-}))
-
 export const sampleTranscriptionResponse = [
   {
       "word": "people",
