@@ -12,7 +12,7 @@ export default async function Home() {
   }
   const loadedVideoData = await queryVideoData(user.id);
   if (!loadedVideoData) {
-    return <p>Ain't loaded boy</p>;
+    return <p>Aint loaded boy</p>;
   }
   loadedVideoData.forEach(async (videoData) => {
     videoData.sourceUrl = await getVideoUrl(videoData.filename);

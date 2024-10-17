@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import LoadingDots from "./loading_dots";
 
 export default function ProfileIcon({ initial }: { initial?: string }) {
+  const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(false);
   if (isLoading) {
     <LoadingDots />;
@@ -34,7 +35,6 @@ export default function ProfileIcon({ initial }: { initial?: string }) {
   }
 
   // User logged in
-  const pathname = usePathname();
   if (pathname.startsWith("/dashboard")) {
     return (
       <Link

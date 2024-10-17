@@ -90,12 +90,13 @@ export default function TextEditor({
           return (
             <>
               <p className="text-sm italic text-gray-500">{vd.filename}</p>
-              {vd.transcript?.map((wordInfo) => {
+              {vd.transcript?.map((wordInfo, index) => {
                 if (hideSkippedWords && wordInfo.skip) {
                   return null;
                 } else if (wordInfo.word) {
                   return (
                     <Word
+                      key={index}
                       wordInfo={wordInfo}
                       focus={wordInfo.index == editorFocus}
                     />
@@ -103,6 +104,7 @@ export default function TextEditor({
                 } else {
                   return (
                     <Gap
+                      key={index}
                       wordInfo={wordInfo}
                       focus={wordInfo.index == editorFocus}
                     />
