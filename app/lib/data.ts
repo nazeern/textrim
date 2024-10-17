@@ -240,6 +240,7 @@ export const sampleVideoData: VideoData[] = videoNames.map((filename: string, in
   id: filename,
   position: index,
   duration: 60,
+  status: VideoDataStatus.COMPLETE,
 }))
 
 export const sampleTranscriptionResponse = [
