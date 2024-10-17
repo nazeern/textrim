@@ -3,6 +3,7 @@ import Link from "next/link";
 import { LogoTitle } from "@/app/ui/logo";
 import Toast from "@/app/ui/toast";
 import FormButton from "@/app/ui/form-button";
+import GoogleButton from "@/app/ui/google-button";
 
 export default function LoginPage({
   searchParams,
@@ -30,6 +31,16 @@ export default function LoginPage({
       <div className="min-w-96 w-4/12 bg-white rounded-lg shadow p-10 border">
         <Toast style={toastStyle}>{success || error}</Toast>
         <p className="text-2xl font-bold mb-6">Log in to your account</p>
+        {/* Sign in with Google */}
+        <div className="flex justify-center">
+          <GoogleButton />
+        </div>
+        {/* Divider */}
+        <div className="flex items-center justify-center my-6">
+          <hr className="w-full border-t border-gray-300" />
+          <span className="px-4 text-gray-500">or</span>
+          <hr className="w-full border-t border-gray-300" />
+        </div>
         <form className="flex flex-col gap-y-2">
           <label htmlFor="email" className="">
             Email

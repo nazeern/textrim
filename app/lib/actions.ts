@@ -40,41 +40,33 @@ export async function signup(formData: FormData) {
 
   // type-casting here for convenience
   // in practice, you should validate your inputs
-  const usernameInput = formData.get('username') as string
+  const nameInput = formData.get('name') as string
   const data = {
     email: formData.get('email') as string,
     password: formData.get('password') as string,
     options: {
       data: {
-        username: usernameInput,
+        name: nameInput,
       }
     }
   }
-  const confirmedPassword = formData.get('confirm-password') as string
-  
   const params = new URLSearchParams();
-  if (data.password !== confirmedPassword) {
-    const errorString = "Please confirm your passwords are identical."
-    params.set('error', errorString)
-    redirect(`/sign-up?${params.toString()}`)
-  }
 
   const { error } = await supabase.auth.signUp(data)
   console.log(error);
 
   if (error instanceof AuthApiError) {
-    const errorString = "Username is already taken."
+    const errorString = "Oops, account creation failed!"
     params.set('error', errorString)
     redirect(`/sign-up?${params.toString()}`)
   }
-
-  params.set('success', 'Congrats! Check your inbox for a confirmation email.')
   revalidatePath('/', 'layout')
 
   const redirectTo = formData.get('redirectTo') as string
   if (redirectTo) {
     redirect(redirectTo)
   } else {
+    params.set('success', 'Congrats! Check your inbox for a confirmation email.')
     redirect(`/login?${params.toString()}`)
   }
 }

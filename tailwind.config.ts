@@ -17,7 +17,7 @@ const config: Config = {
         primary: '#3d88ff',  // blue
         onprimary: '#ffffff',  // white
         primaryhov: '#0345fc',  // dark blue
-        primarybg: '#cdd9fa',  // light blue
+        primarybg: '#e6ecfc',  // light blue
         secondary: '#fdfdfd',
         onsecondary: '#ebebeb',
         tertiary: '#fcdd89',

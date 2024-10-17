@@ -6,9 +6,7 @@ import { type User } from "@supabase/supabase-js";
 export default function AccountForm({ user }: { user: User | null }) {
   const supabase = createClient();
   const [loading, setLoading] = useState(true);
-  const [fullname, setFullname] = useState<string | null>(null);
-  const [website, setWebsite] = useState<string | null>(null);
-  const [avatar_url, setAvatarUrl] = useState<string | null>(null);
+  const [name, setName] = useState<string | null>(null);
 
   const getProfile = useCallback(async () => {
     try {
@@ -16,7 +14,7 @@ export default function AccountForm({ user }: { user: User | null }) {
 
       const { data, error, status } = await supabase
         .from("profiles")
-        .select(`full_name, website, avatar_url`)
+        .select("name")
         .eq("id", user!.id)
         .single();
 
@@ -26,9 +24,7 @@ export default function AccountForm({ user }: { user: User | null }) {
       }
 
       if (data) {
-        setFullname(data.full_name);
-        setWebsite(data.website);
-        setAvatarUrl(data.avatar_url);
+        setName(data.name);
       }
     } catch (error) {
       console.log(error);
@@ -42,22 +38,13 @@ export default function AccountForm({ user }: { user: User | null }) {
     getProfile();
   }, [user, getProfile]);
 
-  async function updateProfile({
-    website,
-    avatar_url,
-  }: {
-    fullname: string | null;
-    website: string | null;
-    avatar_url: string | null;
-  }) {
+  async function updateProfile({ name }: { name: string | null }) {
     try {
       setLoading(true);
 
       const { error } = await supabase.from("profiles").upsert({
         id: user?.id as string,
-        full_name: fullname,
-        website,
-        avatar_url,
+        name: name,
         updated_at: new Date().toISOString(),
       });
       if (error) throw error;
@@ -85,30 +72,19 @@ export default function AccountForm({ user }: { user: User | null }) {
             className="border border-gray-300 text-gray-900 sm:text-sm rounded-lg p-2 mb-3"
           />
           <label className="font-semibold" htmlFor="fullName">
-            Full Name
+            Preferred Name
           </label>
           <input
             id="fullName"
             type="text"
-            value={fullname || ""}
-            onChange={(e) => setFullname(e.target.value)}
+            value={name || ""}
+            onChange={(e) => setName(e.target.value)}
             className="border border-gray-300 text-gray-900 sm:text-sm rounded-lg p-2 mb-3"
-          />
-
-          <label className="font-semibold" htmlFor="website">
-            Website
-          </label>
-          <input
-            id="website"
-            type="url"
-            value={website || ""}
-            onChange={(e) => setWebsite(e.target.value)}
-            className="border border-gray-300 text-gray-900 sm:text-sm rounded-lg p-2 mb-8"
           />
         </div>
         <button
           className="bg-primary rounded-full px-4 py-2 text-onprimary font-semibold"
-          onClick={() => updateProfile({ fullname, website, avatar_url })}
+          onClick={() => updateProfile({ name })}
           disabled={loading}
         >
           {loading ? "Loading ..." : "Update"}

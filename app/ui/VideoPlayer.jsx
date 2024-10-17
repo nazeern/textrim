@@ -23,7 +23,7 @@ export default function VideoPlayer({ videoData, playFrom, allowedEmptyGap, setP
 
     // On new sourceIdx, seek to start or skip to next video as needed
     const skipTime = skipTo(0, skipIntervals?.[sourceIdx] ?? [])
-    const endOfVideo = videoData?.[sourceIdx].duration
+    const endOfVideo = videoData?.[sourceIdx]?.duration
     if (closeTo(skipTime, endOfVideo, 0.1)) {
       nextVideoOrStop()
     } else if (skipTime) {

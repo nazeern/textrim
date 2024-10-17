@@ -2,42 +2,58 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
+import LoadingDots from "./loading_dots";
 
 export default function ProfileIcon({ initial }: { initial?: string }) {
   const [isLoading, setIsLoading] = useState(false);
-
   if (isLoading) {
+    <LoadingDots />;
+  }
+
+  // User not logged in
+  if (!initial) {
+    const searchParams = new URLSearchParams();
+    searchParams.set("redirectTo", "/dashboard");
     return (
-      <div
-        className="border border-primary bg-yellow-100 rounded-full size-10 flex justify-center items-center
-          text-primary hover:border-complement"
-      >
-        {/* Loading Dots */}
-        <div className="flex gap-x-1">
-          <div className="h-2 w-2 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-          <div className="h-2 w-2 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-          <div className="h-2 w-2 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-        </div>
+      <div className="flex gap-x-3">
+        <Link
+          href={`/login?${searchParams.toString()}`}
+          className="text-sm font-semibold leading-6 text-primary py-1 px-2 border border-primary rounded-lg hover:border-blue-300"
+        >
+          Log in
+        </Link>
+        <Link
+          href={`/sign-up?${searchParams.toString()}`}
+          className="text-sm font-semibold leading-6 bg-blue-600 text-onprimary py-1 px-2 border border-blue-500 rounded-lg hover:bg-primary hover:border-blue-400"
+        >
+          Start Editing
+        </Link>
       </div>
     );
-  } else if (!initial) {
-    return (
-      <Link
-        href="/login"
-        className="text-sm font-semibold leading-6 text-gray-900"
-      >
-        Log in <span aria-hidden="true">&rarr;</span>
-      </Link>
-    );
-  } else
+  }
+
+  // User logged in
+  const pathname = usePathname();
+  if (pathname.startsWith("/dashboard")) {
     return (
       <Link
         onClick={() => setIsLoading(true)}
         href="/account"
         className="border border-primary bg-blue-100 rounded-full size-10 text-center align-middle pt-2
-          text-primary hover:border-complement"
+            text-primary hover:border-complement"
       >
         {initial}
       </Link>
     );
+  } else {
+    return (
+      <Link
+        href="/dashboard"
+        className="text-sm font-semibold leading-6 bg-blue-600 text-onprimary py-1 px-2 border border-blue-500 rounded-lg hover:bg-primary hover:border-blue-400"
+      >
+        Your Dashboard
+      </Link>
+    );
+  }
 }

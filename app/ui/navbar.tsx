@@ -8,11 +8,11 @@ export default async function Navbar() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const initial = user?.user_metadata.username[0];
+  const initial = user?.user_metadata.name[0];
 
   return (
     <nav
-      className="flex items-center justify-between p-6 lg:px-32"
+      className="flex items-center justify-between p-4 lg:px-64 border-b"
       aria-label="Global"
     >
       <div id="logo">
