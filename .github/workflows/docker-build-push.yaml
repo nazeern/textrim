@@ -20,8 +20,8 @@ jobs:
 
     # Step 3: Build the Docker image
     - name: Build Docker image
-      run: docker build -t ghcr.io/${{ github.repository_owner }}/myapp:prod .
+      run: docker build -t ghcr.io/${{ github.repository_owner }}/trext:prod .
 
     # Step 4: Push the Docker image to GHCR
     - name: Push Docker image to GitHub Container Registry
-      run: docker push ghcr.io/${{ github.repository_owner }}/myapp:prod
+      run: docker push ghcr.io/${{ github.repository_owner }}/trext:prod
