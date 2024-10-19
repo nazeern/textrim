@@ -74,7 +74,7 @@ export async function getVideoUrl(
         projectId: process.env.PROJECT_ID,
         credentials: {
           client_email: process.env.CLIENT_EMAIL,
-          private_key: process.env.PRIVATE_KEY?.replace(/\\n/g, '\n'),
+          private_key: process.env.PRIVATE_KEY?.split(String.raw`\n`).join('\n'),
         },
     });
     // Get a v4 signed URL for reading the file
@@ -193,7 +193,7 @@ export async function waitForAudioExtract(filepath: string): Promise<boolean> {
         projectId: process.env.PROJECT_ID,
         credentials: {
           client_email: process.env.CLIENT_EMAIL,
-          private_key: process.env.PRIVATE_KEY?.replace(/\\n/g, '\n'),
+          private_key: process.env.PRIVATE_KEY?.split(String.raw`\n`).join('\n'),
         },
     });
     // TODO: Put this in .env file instead
