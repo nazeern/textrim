@@ -70,6 +70,10 @@ export async function getVideoUrl(
     if (!process.env.BUCKET_NAME) {
         return ""
     }
+    console.log(process.env.BUCKET_NAME)
+    console.log(process.env.PROJECT_ID)
+    console.log(process.env.CLIENT_EMAIL)
+    console.log(process.env.PRIVATE_KEY)
     const storage = new Storage({
         projectId: process.env.PROJECT_ID,
         credentials: {
