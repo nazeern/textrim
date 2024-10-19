@@ -13,9 +13,14 @@ jobs:
       packages: write
 
     steps:
+
     # Checkout the repository code into worker
     - name: Checkout code
       uses: actions/checkout@v2
+
+    - name: Create .env file
+      run: |
+        echo "${{ secrets.ENV_VARS_PROD }}" > .env
 
     # Step 2: Log in to GitHub Container Registry (GHCR)
     - name: Log in to GitHub Container Registry
