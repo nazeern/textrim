@@ -1,0 +1,27 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - main  # Trigger this action on pushes to the main branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout the repository code into worker
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    # Step 2: Log in to GitHub Container Registry (GHCR)
+    - name: Log in to GitHub Container Registry
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+    # Step 3: Build the Docker image
+    - name: Build Docker image
+      run: docker build -t ghcr.io/${{ github.repository_owner }}/myapp:prod .
+
+    # Step 4: Push the Docker image to GHCR
+    - name: Push Docker image to GitHub Container Registry
+      run: docker push ghcr.io/${{ github.repository_owner }}/myapp:prod
