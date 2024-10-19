@@ -70,15 +70,16 @@ export async function getVideoUrl(
     if (!process.env.BUCKET_NAME) {
         return ""
     }
-    console.log(process.env.BUCKET_NAME)
-    console.log(process.env.PROJECT_ID)
-    console.log(process.env.CLIENT_EMAIL)
-    console.log(process.env.PRIVATE_KEY)
+    if (!process.env.GOOGLE_SERVICE_KEY) {
+        return ""
+    }
+    const credential = JSON.parse(Buffer.from(process.env.GOOGLE_SERVICE_KEY, "base64").toString())
+    console.log(credential)
     const storage = new Storage({
         projectId: process.env.PROJECT_ID,
         credentials: {
-          client_email: process.env.CLIENT_EMAIL,
-          private_key: process.env.PRIVATE_KEY?.split(String.raw`\n`).join('\n'),
+          client_email: credential.client_email,
+          private_key: credential.private_key,
         },
     });
     // Get a v4 signed URL for reading the file
