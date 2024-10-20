@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import NextTopLoader from "nextjs-toploader";
+import { BlurBottom, BlurTop } from "@/app/ui/blur";
 
 const inter = Inter({ subsets: ["latin"] });
 
