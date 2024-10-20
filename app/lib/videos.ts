@@ -188,29 +188,34 @@ export async function exportFinalVideo(ffmpegTrimData: ExportData): Promise<Expo
     }
 }
 
-export async function waitForAudioExtract(filepath: string): Promise<boolean> {
+const AUDIO_EXTRACT_FACTOR = 0.1
+
+export async function waitForAudioExtract(filepath: string, videoDuration: number): Promise<boolean> {
     if (!process.env.BUCKET_NAME) {
         return false
     }
-
+    if (!process.env.GOOGLE_SERVICE_KEY) {
+        return false
+    }
+    const credential = JSON.parse(Buffer.from(process.env.GOOGLE_SERVICE_KEY, "base64").toString())
     const storage = new Storage({
         projectId: process.env.PROJECT_ID,
         credentials: {
-          client_email: process.env.CLIENT_EMAIL,
-          private_key: process.env.PRIVATE_KEY?.split(String.raw`\n`).join('\n'),
+          client_email: credential.client_email,
+          private_key: credential.private_key,
         },
     });
     // TODO: Put this in .env file instead
     const audioPath = changeExtension(filepath, "mp3")
     const file = storage.bucket(process.env.BUCKET_NAME).file(audioPath)
     const POLL_INTERVAL_MS = 1000
-    const MAX_POLL_COUNT = 30
+    const waitFor = Math.round(videoDuration * AUDIO_EXTRACT_FACTOR)
 
     console.log("waiting for audio file", audioPath)
     return new Promise((resolve, reject) => {
         let pollCount = 0
         const interval = setInterval(async () => {
-            if (pollCount < MAX_POLL_COUNT) {
+            if (pollCount < waitFor) {
                 // Bruh why does this function return an array
                 // What happened to just true or false
                 const [fileExists] = await file.exists()

@@ -69,10 +69,8 @@ export function range(start: number = 0, end: number): number[] {
 }
 
 export function validateVideo(file: File, videoData: VideoData[]): string | null {
-  if (file.type != "video/mp4") {
-      return "File must be in mp4 format."
-  } else if (file.size >= 1024 * 1024 * 1024) {
-      return "File size must be below 1GB."
+  if (file.size >= 3 * 1024 * 1024 * 1024) {
+      return "File size must be below 3GB."
   } else if (videoData.map(({ filename }) => filename).includes(file.name)) {
       return "File already exists."
   } else {

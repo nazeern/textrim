@@ -72,37 +72,44 @@ export default function TextEditor({
         onKeyDown={handleKeyDown}
         onClick={handleOnClick}
       >
-        {videoData.map((vd) => {
-          return (
-            <>
-              <p className="text-sm italic text-gray-500 w-full">
-                {vd.filename}
-              </p>
-              {vd.transcript?.map((wordInfo, index) => {
-                if (hideSkippedWords && wordInfo.skip) {
-                  return null;
-                } else if (wordInfo.word) {
-                  return (
-                    <Word
-                      key={index}
-                      wordInfo={wordInfo}
-                      focus={wordInfo.index == editorFocus}
-                    />
-                  );
-                } else {
-                  return (
-                    <Gap
-                      key={index}
-                      wordInfo={wordInfo}
-                      focus={wordInfo.index == editorFocus}
-                    />
-                  );
-                }
-              })}
-              <div className="w-full h-6"></div>
-            </>
-          );
-        })}
+        {videoData ? (
+          videoData.map((vd) => {
+            return (
+              <>
+                <p className="text-sm italic text-gray-500 w-full">
+                  {vd.filename}
+                </p>
+                {vd.transcript?.map((wordInfo, index) => {
+                  if (hideSkippedWords && wordInfo.skip) {
+                    return null;
+                  } else if (wordInfo.word) {
+                    return (
+                      <Word
+                        key={index}
+                        wordInfo={wordInfo}
+                        focus={wordInfo.index == editorFocus}
+                      />
+                    );
+                  } else {
+                    return (
+                      <Gap
+                        key={index}
+                        wordInfo={wordInfo}
+                        focus={wordInfo.index == editorFocus}
+                      />
+                    );
+                  }
+                })}
+                <div className="w-full h-6"></div>
+              </>
+            );
+          })
+        ) : (
+          <p className="text-md italic text-gray-500 w-full">
+            Welcome! Upload your raw video to get started. Your transcribed
+            content will appear here. Happy editing!
+          </p>
+        )}
       </div>
       <EditorSaveIcon savingToCloud={savingToCloud} />
     </div>

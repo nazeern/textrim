@@ -78,7 +78,7 @@ export default function SideRail(
           name="videoFile"
           multiple="multiple"
           onChange={handleMultipleFileUpload}
-          accept="video/mp4"
+          accept="video"
           id="videoFile"
         />
         <p className="font-semibold text-lg">Transcriptions</p>
@@ -119,6 +119,10 @@ export default function SideRail(
     if (error) {
       return alert(error);
     }
+    const videoDuration = await calculateVideoDuration(file);
+
+
+
     console.log("Uploading video...")
     setVideoData(videoData => [
       ...videoData,
@@ -128,7 +132,7 @@ export default function SideRail(
         sourceUrl: null,
         transcript: null,
         position: videoData.length,
-        duration: null,
+        duration: videoDuration,
         status: VideoDataStatus.UPLOADING,
       }
     ])
@@ -140,10 +144,9 @@ export default function SideRail(
     if (!response.ok) {
       alert("Video upload failed. Please try again.")
     }
-    const [sourceUrl, videoDuration] = await Promise.all([
-      getVideoUrl(file.name, "read"),
-      calculateVideoDuration(file),
-    ])
+    const sourceUrl = await getVideoUrl(file.name, "read")
+
+
 
     console.log("Extracting audio...")
     setVideoData(videoData => videoData.map(
@@ -154,12 +157,14 @@ export default function SideRail(
         status: VideoDataStatus.EXTRACTING
       } : vd
     ))
-    const foundAudio = await waitForAudioExtract(file.name)
-
+    const foundAudio = await waitForAudioExtract(file.name, videoDuration)
     if (!foundAudio) {
+      console.log("Could not extract audio. Please try again.")
       alert("Could not extract audio. Please try again.")
       return
     }
+
+
 
     console.log("Transcribing...")
     setVideoData(videoData => videoData.map(

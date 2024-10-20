@@ -8,7 +8,8 @@ import {
 import { VideoDataStatus } from "../MainEditor";
 import ProgressBar from "./progress-bar";
 
-const AUDIO_EXTRACT_FACTOR = 1 / 2;
+const UPLOAD_FACTOR = 0.2;
+const AUDIO_EXTRACT_FACTOR = 0.1;
 const TRANSCRIBE_FACTOR = 1 / 2;
 
 export default function UploadStatus({
@@ -22,9 +23,12 @@ export default function UploadStatus({
 }) {
   if (status == VideoDataStatus.UPLOADING) {
     return (
-      <div className="flex gap-x-1 items-center">
-        <p className="line-clamp-2">Uploading...</p>
-        <CloudArrowUpIcon className="size-4 animate-pulse" />
+      <div>
+        <div className="flex gap-x-1 items-center">
+          <p className="line-clamp-2">Uploading...</p>
+          <CloudArrowUpIcon className="size-4 animate-pulse" />
+        </div>
+        <ProgressBar duration={duration * UPLOAD_FACTOR} height={2} />
       </div>
     );
   } else if (status == VideoDataStatus.EXTRACTING) {

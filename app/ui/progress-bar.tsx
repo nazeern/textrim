@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function ProgressBar({
   duration,
@@ -9,14 +9,15 @@ export default function ProgressBar({
   duration: number;
   height: number;
 }) {
-  const progressPerSecond = Math.round((1 / duration) * 100);
+  const progressInterval = useRef<NodeJS.Timeout>();
+  const progressPerSecond = (1 / duration) * 100;
   const [progress, setProgress] = useState<number>(0);
 
   useEffect(() => {
-    const progressUpdateInterval = setInterval(() => {
+    progressInterval.current = setInterval(() => {
       setProgress((progress) => {
         if (progress + progressPerSecond > 99) {
-          clearInterval(progressUpdateInterval);
+          clearInterval(progressInterval.current);
           return 99;
         } else {
           return progress + progressPerSecond;
@@ -25,8 +26,8 @@ export default function ProgressBar({
     }, 1000);
 
     return () => {
+      clearInterval(progressInterval.current);
       setProgress((progress) => 0);
-      clearInterval(progressUpdateInterval);
     };
   }, []);
 
@@ -38,7 +39,7 @@ export default function ProgressBar({
           style={{ width: `${progress}%` }}
         />
       </div>
-      <p className="text-sm">{progress}%</p>
+      <p className="text-sm">{Math.round(progress)}%</p>
     </div>
   );
 }
