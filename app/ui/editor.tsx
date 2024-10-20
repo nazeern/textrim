@@ -52,7 +52,7 @@ export default function TextEditor({
 
   return (
     <div className="relative">
-      <label className="absolute -top-7 left-0">
+      <label className="absolute -top-7 left-2">
         <input
           type="checkbox"
           className="mr-1"
@@ -67,7 +67,7 @@ export default function TextEditor({
         contentEditable
         spellCheck={false}
         suppressContentEditableWarning={true}
-        className="max-w-3xl border-2 border-primary rounded-lg p-4 text-xl"
+        className="flex flex-wrap max-w-3xl border-2 border-primary rounded-lg p-4 text-xl"
         ref={editorRef}
         onKeyDown={handleKeyDown}
         onClick={handleOnClick}
@@ -75,7 +75,9 @@ export default function TextEditor({
         {videoData.map((vd) => {
           return (
             <>
-              <p className="text-sm italic text-gray-500">{vd.filename}</p>
+              <p className="text-sm italic text-gray-500 w-full">
+                {vd.filename}
+              </p>
               {vd.transcript?.map((wordInfo, index) => {
                 if (hideSkippedWords && wordInfo.skip) {
                   return null;
@@ -97,8 +99,7 @@ export default function TextEditor({
                   );
                 }
               })}
-              <br />
-              <br />
+              <div className="w-full h-6"></div>
             </>
           );
         })}

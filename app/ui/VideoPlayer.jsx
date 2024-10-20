@@ -59,10 +59,10 @@ export default function VideoPlayer({ videoData, playFrom, allowedEmptyGap, setP
     <PlayIcon className="size-6 text-onprimary" />
   )
 
-  const playerWidth = Math.min(640, windowWidth - 10)
+  const playerWidth = Math.min(720, windowWidth - 10)
   const playerHeight = playerWidth * 9 / 16
   return (
-    <>
+    <div className="mb-6">
       <ReactPlayer
         width={playerWidth}
         height={playerHeight}
@@ -73,7 +73,7 @@ export default function VideoPlayer({ videoData, playFrom, allowedEmptyGap, setP
           nextVideoOrStop();
         }}
       />
-      <div className="flex justify-center gap-x-2">
+      <div className="flex justify-center gap-x-2 mt-1">
         <button
           className="rounded-md bg-primary p-2"
           onClick={handlePlayClick}
@@ -87,7 +87,7 @@ export default function VideoPlayer({ videoData, playFrom, allowedEmptyGap, setP
           <BackwardIcon className="size-6 text-onprimary" />
         </button>
       </div>
-    </>
+    </div>
   );
 
   // Helper Functions ******************************************************
