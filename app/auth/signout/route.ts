@@ -14,6 +14,10 @@ export async function POST(req: NextRequest) {
     await supabase.auth.signOut()
   }
 
+  console.log(req)
+  console.log(req.url)
+  console.log(req.nextUrl)
+
   revalidatePath('/', 'layout')
   return NextResponse.redirect(new URL('/login', req.url), {
     status: 302,

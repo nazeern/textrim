@@ -74,7 +74,6 @@ export async function getVideoUrl(
         return ""
     }
     const credential = JSON.parse(Buffer.from(process.env.GOOGLE_SERVICE_KEY, "base64").toString())
-    console.log(credential)
     const storage = new Storage({
         projectId: process.env.PROJECT_ID,
         credentials: {
