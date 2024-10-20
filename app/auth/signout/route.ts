@@ -1,3 +1,4 @@
+import { BASE_URL_DEFAULT } from '@/app/constants'
 import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { type NextRequest, NextResponse } from 'next/server'
@@ -14,12 +15,10 @@ export async function POST(req: NextRequest) {
     await supabase.auth.signOut()
   }
 
-  console.log(req)
-  console.log(req.url)
-  console.log(req.nextUrl)
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? BASE_URL_DEFAULT
 
   revalidatePath('/', 'layout')
-  return NextResponse.redirect(new URL('/login', req.url), {
+  return NextResponse.redirect(`${baseUrl}/login`, {
     status: 302,
   })
 }

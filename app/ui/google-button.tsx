@@ -2,11 +2,14 @@
 
 import { createClient } from "@/utils/supabase/client";
 import styles from "./google-button.module.css";
+import { BASE_URL_DEFAULT } from "@/app/constants";
 
 export default function GoogleButton() {
   const supabase = createClient();
   const searchParams = new URLSearchParams();
   searchParams.set("next", "/dashboard");
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? BASE_URL_DEFAULT;
 
   return (
     <button
@@ -15,7 +18,7 @@ export default function GoogleButton() {
           provider: "google",
           options: {
             // TODO: refactor to use env variable for location
-            redirectTo: `http://localhost:3000/auth/callback?${searchParams.toString()}`,
+            redirectTo: `${baseUrl}/auth/callback?${searchParams.toString()}`,
           },
         });
       }}
