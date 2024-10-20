@@ -4,7 +4,7 @@ import { skipTo } from "../lib/utils";
 import { PlayIcon, PauseIcon, BackwardIcon } from "@heroicons/react/24/solid";
 import { intervalsToSkip, closeTo, wordAtTick } from "../lib/utils";
 
-export default function VideoPlayer({ videoData, playFrom, allowedEmptyGap, setPlayFrom, setEditorFocus }) {
+export default function VideoPlayer({ videoData, playFrom, allowedEmptyGap, setPlayFrom, setEditorFocus, windowWidth }) {
 
   const refreshRateMs = 100
 
@@ -59,9 +59,13 @@ export default function VideoPlayer({ videoData, playFrom, allowedEmptyGap, setP
     <PlayIcon className="size-6 text-onprimary" />
   )
 
+  const playerWidth = Math.min(640, windowWidth - 10)
+  const playerHeight = playerWidth * 9 / 16
   return (
     <>
       <ReactPlayer
+        width={playerWidth}
+        height={playerHeight}
         ref={videoRef}
         url={sourceUrls[sourceIdx]}
         playing={isPlaying}

@@ -67,25 +67,11 @@ export default function TextEditor({
         contentEditable
         spellCheck={false}
         suppressContentEditableWarning={true}
-        style={{ height: 512, width: 720 }}
-        className="border-2 border-primary rounded-lg p-4 text-xl"
+        className="max-w-3xl border-2 border-primary rounded-lg p-4 text-xl"
         ref={editorRef}
         onKeyDown={handleKeyDown}
         onClick={handleOnClick}
       >
-        {/* {transcripts.flat().map((wordInfo) => {
-          if (hideSkippedWords && wordInfo.skip) {
-            return null;
-          } else if (wordInfo.word) {
-            return (
-              <Word wordInfo={wordInfo} focus={wordInfo.index == editorFocus} />
-            );
-          } else {
-            return (
-              <Gap wordInfo={wordInfo} focus={wordInfo.index == editorFocus} />
-            );
-          }
-        })} */}
         {videoData.map((vd) => {
           return (
             <>

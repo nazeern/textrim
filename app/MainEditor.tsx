@@ -67,6 +67,7 @@ export default function MainEditor({
   loadedVideoData: VideoData[];
   userId: string;
 }) {
+  const [windowWidth, setWindowWidth] = useState<number>(0);
   const isMounted = useRef<boolean>(false);
   const [savingToCloud, setSavingToCloud] = useState<SavingState>(
     SavingState.SAVED
@@ -79,6 +80,15 @@ export default function MainEditor({
   const [showExportModal, setShowExportModal] = useState<boolean>(false);
   const [finalUrl, setFinalUrl] = useState<string>("");
   const [exportProgress, setExportProgress] = useState<number>(0);
+
+  useEffect(() => {
+    const updateWindowWidth = () => {
+      setWindowWidth(window.innerWidth);
+    };
+    updateWindowWidth();
+    window.addEventListener("resize", updateWindowWidth);
+    return () => window.removeEventListener("resize", updateWindowWidth);
+  }, []);
 
   const debouncedUpsertToDB = useCallback(
     debounce(
@@ -105,16 +115,22 @@ export default function MainEditor({
     }
   }, [videoData]);
 
+  const showSideRail = windowWidth >= 1024;
+
   return (
-    <div>
-      <SideRail
-        videoData={videoData}
-        allowedEmptyGap={allowedEmptyGap}
-        setVideoData={setVideoData}
-        setChanges={setChanges}
-        setAllowedEmptyGap={setAllowedEmptyGap}
-      />
-      <div className="flex flex-col gap-y-1 items-center">
+    <div className="w-full flex">
+      <div className="flex flex-1 justify-center items-center">
+        {showSideRail && (
+          <SideRail
+            videoData={videoData}
+            allowedEmptyGap={allowedEmptyGap}
+            setVideoData={setVideoData}
+            setChanges={setChanges}
+            setAllowedEmptyGap={setAllowedEmptyGap}
+          />
+        )}
+      </div>
+      <div className="flex shrink flex-none flex-col gap-y-1 items-center">
         <button
           className="flex items-center gap-x-1 self-end bg-primary hover:bg-primaryhov p-2 text-onprimary rounded-lg"
           onClick={handleExport}
@@ -125,6 +141,7 @@ export default function MainEditor({
           videoData={videoData}
           playFrom={playFrom}
           allowedEmptyGap={allowedEmptyGap}
+          windowWidth={windowWidth}
           setPlayFrom={setPlayFrom}
           setEditorFocus={setEditorFocus}
         />
@@ -138,6 +155,7 @@ export default function MainEditor({
           setChanges={setChanges}
         />
       </div>
+      <div className="flex-1"></div>
       {showExportModal && (
         <PopupWrapper setVisible={setShowExportModal}>
           <ExportModal finalUrl={finalUrl} exportProgress={exportProgress} />

@@ -42,7 +42,7 @@ export default function SideRail(
   const removingEmptyIntervals = (allowedEmptyGap == Infinity) ? false : true;
 
   return (
-    <div className="absolute top-50 left-24 h-full flex flex-col gap-y-1">
+    <div className="h-full flex flex-col gap-y-1 mx-6">
       <label>
         <input 
           type="checkbox"
