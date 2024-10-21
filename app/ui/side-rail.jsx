@@ -20,12 +20,13 @@ import { getVideoUrl, getVideoTranscript, waitForAudioExtract } from "../lib/vid
 import { calculateVideoDuration, delay, validateVideo } from "../lib/utils";
 import { sampleTranscriptionResponse } from "../lib/data";
 import { VideoDataStatus } from "../MainEditor";
+import { UPLOAD_FACTOR } from "./upload-status";
 
 
 const ALLOWED_GAP_DEFAULT = 0.5;  // seconds
 
 export default function SideRail(
-  { videoData, allowedEmptyGap, setVideoData, setChanges, setAllowedEmptyGap }
+  { videoData, allowedEmptyGap, setVideoData, setChanges, setAllowedEmptyGap, setToastData }
 ) {
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -109,8 +110,13 @@ export default function SideRail(
   // Helper Functions ******************************************************
 
   async function handleMultipleFileUpload(event) {
+
     const files = Array.from(event.target.files)
-    files.forEach(async (file) => handleSingleFileUpload(file))
+    
+    const promises = files.map((file) => handleSingleFileUpload(file))
+    await Promise.all(promises)
+
+    setToastData(null)
   }
 
   /** Validate and upload a single file. */
@@ -120,7 +126,13 @@ export default function SideRail(
       return alert(error);
     }
     const videoDuration = await calculateVideoDuration(file);
-
+    setToastData((td) => {
+      const estimatedDuration = UPLOAD_FACTOR * videoDuration;
+      return {
+        totalUploadDuration: videoDuration + (td?.totalUploadDuration ?? 0),
+        estimatedDuration: Math.max(estimatedDuration, (td?.estimatedDuration ?? 0)),
+      }
+    })
 
 
     console.log("Uploading video...")

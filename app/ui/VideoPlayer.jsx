@@ -53,6 +53,15 @@ export default function VideoPlayer({ videoData, playFrom, allowedEmptyGap, setP
     return () => clearInterval(intervalRef.current)
   }, [sourceIdx, isPlaying])
 
+  // Listen to `playFrom` and seek, then unset
+  useEffect(() => {
+    if (videoRef.current && playFrom) {
+      setSourceIdx(playFrom.sourceIdx)
+      setTimeout(() => videoRef.current.seekTo(playFrom.seconds, "seconds"), 10)
+      setPlayFrom(null)
+    }
+  }, [playFrom])
+
   const icon = (
     isPlaying ? 
     <PauseIcon className="size-6 text-onprimary" /> : 
@@ -101,13 +110,6 @@ export default function VideoPlayer({ videoData, playFrom, allowedEmptyGap, setP
   /** On play, seek to `playFrom` if available, then start playing! */
   function handlePlayClick() {
     setIsPlaying(!isPlaying)
-    if (playFrom != null) {
-      setSourceIdx(playFrom.sourceIdx)
-      setTimeout(() => {
-        videoRef.current.seekTo(playFrom.seconds, 'seconds')
-      }, 10)
-      setPlayFrom(null)
-    }
   }
 
   function nextVideoOrStop() {

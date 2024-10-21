@@ -8,7 +8,7 @@ import {
 import { VideoDataStatus } from "../MainEditor";
 import ProgressBar from "./progress-bar";
 
-const UPLOAD_FACTOR = 0.2;
+export const UPLOAD_FACTOR = 0.2;
 const AUDIO_EXTRACT_FACTOR = 0.1;
 const TRANSCRIBE_FACTOR = 1 / 2;
 
