@@ -67,7 +67,7 @@ export default function TextEditor({
         contentEditable
         spellCheck={false}
         suppressContentEditableWarning={true}
-        className="flex flex-wrap max-w-3xl border-2 border-primary rounded-lg p-4 text-xl"
+        className="flex flex-wrap max-w-3xl border-2 border-primary rounded-lg p-4 text-xl h-[512px] overflow-y-scroll mb-12"
         ref={editorRef}
         onKeyDown={handleKeyDown}
         onClick={handleOnClick}

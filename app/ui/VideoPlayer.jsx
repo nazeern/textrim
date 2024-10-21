@@ -100,6 +100,7 @@ export default function VideoPlayer({ videoData, playFrom, allowedEmptyGap, setP
 
   /** On play, seek to `playFrom` if available, then start playing! */
   function handlePlayClick() {
+    setIsPlaying(!isPlaying)
     if (playFrom != null) {
       setSourceIdx(playFrom.sourceIdx)
       setTimeout(() => {
@@ -107,7 +108,6 @@ export default function VideoPlayer({ videoData, playFrom, allowedEmptyGap, setP
       }, 10)
       setPlayFrom(null)
     }
-    setIsPlaying(!isPlaying)
   }
 
   function nextVideoOrStop() {
