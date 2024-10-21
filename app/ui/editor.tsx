@@ -72,7 +72,7 @@ export default function TextEditor({
         onKeyDown={handleKeyDown}
         onClick={handleOnClick}
       >
-        {videoData ? (
+        {!videoData.length ? (
           videoData.map((vd) => {
             return (
               <>
