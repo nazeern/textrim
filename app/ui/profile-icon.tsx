@@ -15,7 +15,7 @@ export default function ProfileIcon({ initial }: { initial?: string }) {
   // User not logged in
   if (!initial) {
     const searchParams = new URLSearchParams();
-    searchParams.set("redirectTo", "/dashboard");
+    searchParams.set("redirectTo", "/projects");
     return (
       <div className="flex gap-x-3">
         <Link
@@ -35,7 +35,7 @@ export default function ProfileIcon({ initial }: { initial?: string }) {
   }
 
   // User logged in
-  if (pathname.startsWith("/dashboard")) {
+  if (pathname.startsWith("/projects")) {
     return (
       <Link
         onClick={() => setIsLoading(true)}
@@ -49,7 +49,7 @@ export default function ProfileIcon({ initial }: { initial?: string }) {
   } else {
     return (
       <Link
-        href="/dashboard"
+        href="/projects"
         className="text-sm font-semibold leading-6 bg-blue-600 text-onprimary py-1 px-2 border border-blue-500 rounded-lg hover:bg-primary hover:border-blue-400"
       >
         Your Dashboard

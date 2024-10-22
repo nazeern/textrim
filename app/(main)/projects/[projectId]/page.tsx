@@ -1,8 +1,13 @@
 import MainEditor from "@/app/MainEditor";
-import { getVideoUrl, queryVideoData } from "../../lib/videos";
+import { decodeBase64UUID } from "@/app/lib/string";
+import { getVideoUrl, queryVideoData } from "@/app/lib/videos";
 import { createClient } from "@/utils/supabase/server";
 
-export default async function Home() {
+export default async function Editor({
+  params,
+}: {
+  params: { projectId: string };
+}) {
   const supabase = createClient();
   const {
     data: { user },
@@ -10,7 +15,8 @@ export default async function Home() {
   if (!user) {
     return <p>Ya aint logged in boi</p>;
   }
-  const loadedVideoData = await queryVideoData(user.id);
+  const projectId = decodeBase64UUID(params.projectId);
+  const loadedVideoData = await queryVideoData(projectId);
   if (!loadedVideoData) {
     return <p>Aint loaded boy</p>;
   }
@@ -18,5 +24,5 @@ export default async function Home() {
     videoData.sourceUrl = await getVideoUrl(videoData.filename);
   });
   // After querying loadedVideoData, fill information as needed.
-  return <MainEditor loadedVideoData={loadedVideoData} userId={user.id} />;
+  return <MainEditor loadedVideoData={loadedVideoData} projectId={projectId} />;
 }

@@ -14,14 +14,14 @@ enum VideoDataStatus {
     COMPLETE,
 }
 
-/** Get VideoData for a given user. */
-export async function queryVideoData(userId: string): Promise<VideoData[] | null> {
+/** Get VideoData for a given project. */
+export async function queryVideoData(projectId: string): Promise<VideoData[] | null> {
     const supabase = createClient()
 
     const { data, error } = await supabase
         .from('videos')
         .select('filename, transcript, position, duration')
-        .eq('user_id', userId)
+        .eq('project_id', projectId)
         .order('position')
 
     if (data) {
@@ -40,12 +40,12 @@ export async function queryVideoData(userId: string): Promise<VideoData[] | null
     }
 }
 
-export async function upsertVideoData(userId: string, videoData: VideoData[]) {
+export async function upsertVideoData(projectId: string, videoData: VideoData[]) {
     const supabase = createClient()
 
     const toUpsert = videoData
         .map((vd) => ({
-            user_id: userId,
+            project_id: projectId,
             filename: vd.filename,
             transcript: vd.transcript,
             source_url: vd.sourceUrl,

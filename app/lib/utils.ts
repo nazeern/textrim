@@ -213,7 +213,7 @@ type TrimData = {
 }
 
 export type ExportData = {
-  userId: string,
+  projectId: string,
   outputDuration: number,
   data: TrimData[]
 }
@@ -221,7 +221,7 @@ export type ExportData = {
 /** `joinIntervals` returns a readable format encoding intervals and phrases.
  * This function combines intervals where possible to decide which clips to take.
  */
-export function getFfmpegTrimData(videoData: VideoData[], userId: string, allowedEmptyGap: number): ExportData {
+export function getFfmpegTrimData(videoData: VideoData[], projectId: string, allowedEmptyGap: number): ExportData {
 
   let outputDuration = 0.0
   const trimData = videoData.map(({ filename, transcript }) => {
@@ -239,7 +239,7 @@ export function getFfmpegTrimData(videoData: VideoData[], userId: string, allowe
 
 
   return {
-    userId: userId,
+    projectId: projectId,
     outputDuration: outputDuration,
     data: trimData,
   }
@@ -308,4 +308,9 @@ export function timeString(totalSeconds: number): string {
     output.push(seconds.toString() + "s")
   }
   return output.join(' ')
+}
+
+export function timestampString(dateString: string) {
+  const date = new Date(dateString)
+  return date.toDateString()
 }

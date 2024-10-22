@@ -84,10 +84,10 @@ export enum SavingState {
 
 export default function MainEditor({
   loadedVideoData,
-  userId,
+  projectId,
 }: {
   loadedVideoData: VideoData[];
-  userId: string;
+  projectId: string;
 }) {
   const [showExportModal, setShowExportModal] = useState<boolean>(false);
   const [toastData, setToastData] = useState<ToastData | null>();
@@ -265,7 +265,7 @@ export default function MainEditor({
     console.log(videoData);
 
     setSavingToCloud(SavingState.SAVING);
-    const upserted = await upsertVideoData(userId, videoData);
+    const upserted = await upsertVideoData(projectId, videoData);
     setSavingToCloud(SavingState.SAVED);
     // console.log(upserted);
   }
@@ -275,7 +275,7 @@ export default function MainEditor({
     if (!finalUrl) {
       const ffmpegTrimData = getFfmpegTrimData(
         videoData,
-        userId,
+        projectId,
         allowedEmptyGap
       );
       const expectedExportDuration = (ffmpegTrimData.outputDuration * 3) / 4;

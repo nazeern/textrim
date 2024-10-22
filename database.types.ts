@@ -27,12 +27,42 @@ export type Database = {
         }
         Relationships: []
       }
+      projects: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       videos: {
         Row: {
           created_at: string
           duration: number
           filename: string
           position: number
+          project_id: string
           source_url: string | null
           transcript: Json | null
           user_id: string
@@ -42,20 +72,29 @@ export type Database = {
           duration?: number
           filename: string
           position: number
+          project_id?: string
           source_url?: string | null
           transcript?: Json | null
-          user_id: string
+          user_id?: string
         }
         Update: {
           created_at?: string
           duration?: number
           filename?: string
           position?: number
+          project_id?: string
           source_url?: string | null
           transcript?: Json | null
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "videos_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "videos_user_id_fkey"
             columns: ["user_id"]

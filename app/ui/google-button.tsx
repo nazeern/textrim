@@ -7,7 +7,7 @@ import { BASE_URL_DEFAULT } from "@/app/constants";
 export default function GoogleButton() {
   const supabase = createClient();
   const searchParams = new URLSearchParams();
-  searchParams.set("next", "/dashboard");
+  searchParams.set("next", "/projects");
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? BASE_URL_DEFAULT;
 
