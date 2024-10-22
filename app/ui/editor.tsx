@@ -30,6 +30,7 @@ export default function TextEditor({
   setVideoData,
   setPlayFrom,
   setChanges,
+  setEditorFocus,
 }: {
   videoData: VideoData[];
   changes: Change[];
@@ -38,6 +39,7 @@ export default function TextEditor({
   setVideoData: Dispatch<SetStateAction<VideoData[]>>;
   setPlayFrom: Dispatch<SetStateAction<PlayFrom | null>>;
   setChanges: Dispatch<SetStateAction<Change[]>>;
+  setEditorFocus: Dispatch<SetStateAction<number>>;
 }) {
   const editorRef: any = useRef();
   const [redoStack, setRedoStack] = useState<Change[]>([]);
@@ -170,7 +172,11 @@ export default function TextEditor({
   /** Which word in editor was clicked? Then calculate `playFrom` for video player. */
   function handleOnClick(e: any) {
     const selection = getSelectedWords();
+    if (selection.start != selection.end) {
+      return;
+    }
     const editorIndex = selection.start;
+    setEditorFocus(editorIndex);
     if (!Number.isNaN(editorIndex)) {
       const [sourceIdx, word] = nestedListAt(editorIndex, transcripts);
       setPlayFrom({ sourceIdx, seconds: word.start });

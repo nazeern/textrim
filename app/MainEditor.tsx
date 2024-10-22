@@ -35,6 +35,7 @@ import Toast from "./ui/toast";
 import { UPLOAD_FACTOR } from "./ui/upload-status";
 
 const WAIT_FOR_INACTIVITY_SECONDS = 5;
+const EXPORT_FACTOR = 0.6;
 
 export type Change = EditorChange | VideosChange;
 
@@ -223,12 +224,16 @@ export default function MainEditor({
           setVideoData={setVideoData}
           setPlayFrom={setPlayFrom}
           setChanges={setChanges}
+          setEditorFocus={setEditorFocus}
         />
       </div>
       <div className="flex-1"></div>
       {showExportModal && (
         <PopupWrapper setVisible={setShowExportModal}>
-          <ExportModal finalUrl={finalUrl} exportProgress={exportProgress} />
+          <ExportModal
+            finalUrl={finalUrl}
+            exportProgress={Math.round(exportProgress)}
+          />
         </PopupWrapper>
       )}
     </div>
@@ -278,9 +283,10 @@ export default function MainEditor({
         projectId,
         allowedEmptyGap
       );
-      const expectedExportDuration = (ffmpegTrimData.outputDuration * 3) / 4;
+      const expectedExportDuration =
+        ffmpegTrimData.outputDuration * EXPORT_FACTOR;
 
-      const progressPerSecond = Math.round((1 / expectedExportDuration) * 100);
+      const progressPerSecond = (1 / expectedExportDuration) * 100;
       const progressUpdateInterval = setInterval(() => {
         setExportProgress((progress) => {
           if (progress + progressPerSecond > 99) {

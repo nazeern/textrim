@@ -169,7 +169,6 @@ export async function exportFinalVideo(ffmpegTrimData: ExportData): Promise<Expo
             },
             body: JSON.stringify(ffmpegTrimData), // Convert the JavaScript object to JSON
         });
-        console.log(response)
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
