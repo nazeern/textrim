@@ -294,3 +294,18 @@ export function processVideoTranscript(transcript: WordInfo[], duration: number)
 export function closeTo(a: number, b: number, dist: number) {
   return Math.abs(b - a) < dist
 }
+
+export function timeString(totalSeconds: number): string {
+  const rounded = Math.round(totalSeconds)
+  const minutes = Math.floor(rounded / 60)
+  const seconds = rounded % 60
+
+  const output = []
+  if (minutes) {
+    output.push(minutes.toString() + "m")
+  }
+  if (seconds) {
+    output.push(seconds.toString() + "s")
+  }
+  return output.join(' ')
+}

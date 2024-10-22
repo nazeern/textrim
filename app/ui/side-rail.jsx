@@ -112,7 +112,7 @@ export default function SideRail(
   async function handleMultipleFileUpload(event) {
 
     const files = Array.from(event.target.files)
-    
+
     const promises = files.map((file) => handleSingleFileUpload(file))
     await Promise.all(promises)
 

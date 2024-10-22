@@ -2,25 +2,37 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import VideoPlayer from "@/app/ui/VideoPlayer";
-import { WordInfo, exportFinalVideo, upsertVideoData } from "./lib/videos";
+import {
+  WordInfo,
+  exportFinalVideo,
+  getVideoTranscript,
+  getVideoUrl,
+  upsertVideoData,
+  waitForAudioExtract,
+} from "./lib/videos";
 import TextEditor from "@/app/ui/editor";
 import SideRail from "./ui/side-rail";
 import { debounce } from "lodash";
 import { PopupWrapper } from "./ui/popup-wrapper";
 import { ExportModal } from "./ui/export-modal";
 import {
+  calculateVideoDuration,
   delay,
   getFfmpegTrimData,
   intervalsToKeep,
   intervalsToSkip,
   processVideoTranscript,
+  timeString,
+  validateVideo,
 } from "./lib/utils";
 import {
+  PlusIcon,
   ArrowUpTrayIcon,
   XCircleIcon,
   Cog6ToothIcon,
 } from "@heroicons/react/24/solid";
 import Toast from "./ui/toast";
+import { UPLOAD_FACTOR } from "./ui/upload-status";
 
 const WAIT_FOR_INACTIVITY_SECONDS = 5;
 
@@ -78,7 +90,7 @@ export default function MainEditor({
   userId: string;
 }) {
   const [showExportModal, setShowExportModal] = useState<boolean>(false);
-  const [toastData, setToastData] = useState<ToastData | null>(null);
+  const [toastData, setToastData] = useState<ToastData | null>();
 
   const [windowWidth, setWindowWidth] = useState<number>(0);
   const isMounted = useRef<boolean>(false);
@@ -129,11 +141,9 @@ export default function MainEditor({
 
   const showSideRail = windowWidth >= 1024;
   const toastString = toastData
-    ? `Processing ${Math.round(
+    ? `Processing ${timeString(
         toastData.totalUploadDuration
-      )} seconds of video in estimated ${Math.round(
-        toastData.estimatedDuration
-      )} seconds...`
+      )} of video in estimated ${timeString(toastData.estimatedDuration)}...`
     : null;
 
   return (
@@ -153,22 +163,50 @@ export default function MainEditor({
       <div className="flex shrink flex-none flex-col gap-y-1 items-center">
         {toastData && (
           <Toast style="base">
-            <div className="flex items-center gap-x-2">
-              <p className="italic">{toastString}</p>
-              <Cog6ToothIcon className="size-5 animate-spin" />
-              <p className="ml-auto">Grab some coffee? ☕</p>
+            <div className="flex justify-between gap-x-2">
+              <div className="italic flex flex-wrap w-full">
+                {toastString}
+                <Cog6ToothIcon className="size-5 animate-spin" />
+                {toastData.estimatedDuration > 300 && (
+                  <p className="ml-auto">Grab some coffee? ☕</p>
+                )}
+              </div>
               <button onClick={() => setToastData(null)}>
                 <XCircleIcon className="size-5" />
               </button>
             </div>
           </Toast>
         )}
-        <button
-          className="flex items-center gap-x-1 self-end bg-primary hover:bg-primaryhov p-2 text-onprimary rounded-lg"
-          onClick={handleExport}
-        >
-          Export <ArrowUpTrayIcon className="size-5" />
-        </button>
+        <div className="flex w-full">
+          {!showSideRail ? (
+            <div>
+              <label
+                htmlFor="videoFile"
+                className="flex items-center gap-x-1 text-onprimary bg-primary rounded-lg p-2"
+              >
+                <p>Upload</p>
+                <PlusIcon className="size-6" />
+              </label>
+              <input
+                className="hidden"
+                type="file"
+                name="videoFile"
+                multiple
+                onChange={handleMultipleFileUpload}
+                accept="video"
+                id="videoFile"
+              />
+            </div>
+          ) : (
+            <div />
+          )}
+          <button
+            className="ml-auto flex items-center gap-x-1 bg-primary hover:bg-primaryhov p-2 text-onprimary rounded-lg"
+            onClick={handleExport}
+          >
+            Export <ArrowUpTrayIcon className="size-5" />
+          </button>
+        </div>
         <VideoPlayer
           videoData={videoData}
           playFrom={playFrom}
@@ -260,5 +298,104 @@ export default function MainEditor({
         setFinalUrl(res?.url ?? "");
       });
     }
+  }
+
+  async function handleMultipleFileUpload(event: any) {
+    const files = Array.from(event.target.files);
+
+    const promises = files.map((file) => handleSingleFileUpload(file as File));
+    await Promise.all(promises);
+
+    setToastData(null);
+  }
+
+  /** Validate and upload a single file. */
+  async function handleSingleFileUpload(file: File) {
+    const error = validateVideo(file, videoData);
+    if (error) {
+      return alert(error);
+    }
+    const videoDuration = await calculateVideoDuration(file);
+    if (videoDuration == null) {
+      alert("Error uploading video. Please reload and try again!");
+      return;
+    }
+    setToastData((td) => {
+      const estimatedDuration = UPLOAD_FACTOR * videoDuration;
+      return {
+        totalUploadDuration: videoDuration + (td?.totalUploadDuration ?? 0),
+        estimatedDuration: Math.max(
+          estimatedDuration,
+          td?.estimatedDuration ?? 0
+        ),
+      };
+    });
+
+    console.log("Uploading video...");
+    setVideoData((videoData) => [
+      ...videoData,
+      {
+        id: file.name,
+        filename: file.name,
+        sourceUrl: null,
+        transcript: null,
+        position: videoData.length,
+        duration: videoDuration,
+        status: VideoDataStatus.UPLOADING,
+      },
+    ]);
+    const signedUploadURL = await getVideoUrl(file.name, "write", 3);
+    const response = await fetch(signedUploadURL, {
+      method: "PUT",
+      body: file,
+    });
+    if (!response.ok) {
+      alert("Video upload failed. Please try again.");
+    }
+    const sourceUrl = await getVideoUrl(file.name, "read");
+
+    console.log("Extracting audio...");
+    setVideoData((videoData) =>
+      videoData.map((vd) =>
+        vd.id === file.name
+          ? {
+              ...vd,
+              sourceUrl: sourceUrl,
+              duration: videoDuration,
+              status: VideoDataStatus.EXTRACTING,
+            }
+          : vd
+      )
+    );
+    const foundAudio = await waitForAudioExtract(file.name, videoDuration);
+    if (!foundAudio) {
+      console.log("Could not extract audio. Please try again.");
+      alert("Could not extract audio. Please try again.");
+      return;
+    }
+
+    console.log("Transcribing...");
+    setVideoData((videoData) =>
+      videoData.map((vd) =>
+        vd.id === file.name
+          ? { ...vd, status: VideoDataStatus.TRANSCRIBING }
+          : vd
+      )
+    );
+    // await delay(5 * 1000)
+    const newTranscript = await getVideoTranscript(file.name, videoDuration);
+    // const newTranscript = sampleTranscriptionResponse;
+    // const newTranscript = [];
+    setVideoData((videoData) =>
+      videoData.map((vd) =>
+        vd.id === file.name
+          ? {
+              ...vd,
+              transcript: newTranscript,
+              status: VideoDataStatus.COMPLETE,
+            }
+          : vd
+      )
+    );
   }
 }
