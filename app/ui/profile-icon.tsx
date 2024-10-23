@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import LoadingDots from "./loading_dots";
+import { login, signup } from "../lib/actions";
 
 export default function ProfileIcon({ initial }: { initial?: string }) {
   const pathname = usePathname();
@@ -14,18 +15,24 @@ export default function ProfileIcon({ initial }: { initial?: string }) {
 
   // User not logged in
   if (!initial) {
-    const searchParams = new URLSearchParams();
-    searchParams.set("redirectTo", "/projects");
+    const loginSearchParams = new URLSearchParams();
+    loginSearchParams.set("redirectTo", "/projects");
+
+    const signupSearchParams = new URLSearchParams();
+    signupSearchParams.set(
+      "redirectTo",
+      `/login?${loginSearchParams.toString()}`
+    );
     return (
       <div className="flex gap-x-3">
         <Link
-          href={`/login?${searchParams.toString()}`}
+          href={`/login?${loginSearchParams.toString()}`}
           className="text-sm font-semibold leading-6 text-primary py-1 px-2 border border-primary rounded-lg hover:border-blue-300"
         >
           Log in
         </Link>
         <Link
-          href={`/sign-up?${searchParams.toString()}`}
+          href={`/sign-up?${signupSearchParams.toString()}`}
           className="text-sm font-semibold leading-6 bg-blue-600 text-onprimary py-1 px-2 border border-blue-500 rounded-lg hover:bg-primary hover:border-blue-400"
         >
           Start Editing

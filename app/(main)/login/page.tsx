@@ -4,8 +4,10 @@ import { LogoTitle } from "@/app/ui/logo";
 import Toast from "@/app/ui/toast";
 import FormButton from "@/app/ui/form-button";
 import GoogleButton from "@/app/ui/google-button";
+import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
 
-export default function LoginPage({
+export default async function LoginPage({
   searchParams,
 }: {
   searchParams: {
@@ -14,6 +16,13 @@ export default function LoginPage({
     redirectTo?: string;
   };
 }) {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) {
+    redirect("/projects");
+  }
   const success = searchParams?.success
     ? decodeURIComponent(searchParams?.success)
     : null;

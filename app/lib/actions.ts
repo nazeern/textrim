@@ -31,7 +31,7 @@ export async function login(formData: FormData) {
   if (redirectTo) {
     redirect(redirectTo)
   } else {
-    redirect('/')
+    redirect('/projects')
   }
 }
 
@@ -41,20 +41,31 @@ export async function signup(formData: FormData) {
   // type-casting here for convenience
   // in practice, you should validate your inputs
   const nameInput = formData.get('name') as string
-  const data = {
+  const loginData = {
     email: formData.get('email') as string,
     password: formData.get('password') as string,
+  }
+
+  // attempt login
+  const { error: loginError } = await supabase.auth.signInWithPassword(loginData)
+  if (!loginError) {
+    redirect('/projects')
+  }
+
+  // signup
+  const signUpData = {
+    ...loginData,
     options: {
       data: {
         name: nameInput,
       }
     }
   }
+  const { error } = await supabase.auth.signUp(signUpData)
+
+
   const params = new URLSearchParams();
-
-  const { error } = await supabase.auth.signUp(data)
-  console.log(error);
-
+  // on error, return with message
   if (error instanceof AuthApiError) {
     const errorString = "Oops, account creation failed!"
     params.set('error', errorString)
@@ -62,11 +73,13 @@ export async function signup(formData: FormData) {
   }
   revalidatePath('/', 'layout')
 
+  // on success, redirect to login with message
   const redirectTo = formData.get('redirectTo') as string
   if (redirectTo) {
     redirect(redirectTo)
   } else {
     params.set('success', 'Congrats! Check your inbox for a confirmation email.')
+    params.set('redirectTo', '/projects')
     redirect(`/login?${params.toString()}`)
   }
 }
