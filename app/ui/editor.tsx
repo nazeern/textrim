@@ -1,7 +1,13 @@
 import { Dispatch, SetStateAction, useRef, useState } from "react";
 import { WordInfo } from "../lib/videos";
 import { nestedListAt, range } from "../lib/utils";
-import { Change, PlayFrom, SavingState, VideoData } from "../MainEditor";
+import {
+  Change,
+  PlayFrom,
+  SavingState,
+  VideoData,
+  VideoDataStatus,
+} from "../MainEditor";
 import { arrayMove } from "@dnd-kit/sortable";
 import EditorSaveIcon from "./editor-save-icon";
 import Word from "./word";
@@ -52,6 +58,10 @@ export default function TextEditor({
     )
     .map((videoData) => videoData.transcript);
 
+  const existingVideoData = videoData.some(
+    (vd) => vd.status == VideoDataStatus.COMPLETE
+  );
+
   return (
     <div className="relative">
       <label className="absolute -top-7 left-2">
@@ -69,16 +79,16 @@ export default function TextEditor({
         contentEditable
         spellCheck={false}
         suppressContentEditableWarning={true}
-        className="flex flex-wrap max-w-3xl border-2 border-primary rounded-lg p-4 text-xl h-[512px] overflow-y-scroll mb-12"
+        className="flex content-start flex-wrap w-full max-w-3xl border-2 border-primary rounded-lg p-4 text-xl h-[512px] overflow-y-scroll mb-12"
         ref={editorRef}
         onKeyDown={handleKeyDown}
         onClick={handleOnClick}
       >
-        {videoData.length ? (
+        {existingVideoData ? (
           videoData.map((vd) => {
             return (
               <>
-                <p className="text-sm italic text-gray-500 w-full">
+                <p className="h-6 text-sm italic text-gray-500 w-full">
                   {vd.filename}
                 </p>
                 {vd.transcript?.map((wordInfo, index) => {

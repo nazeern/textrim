@@ -2,6 +2,7 @@ import { queryProjects } from "@/app/lib/projects";
 import AddProject from "@/app/ui/add-projects";
 import ProjectsList from "@/app/ui/projects-list";
 import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
 
 export default async function ProjectsDashboard() {
   const supabase = createClient();
@@ -9,7 +10,7 @@ export default async function ProjectsDashboard() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    return <p>Ya aint logged in boi</p>;
+    redirect("/login");
   }
   const projects = await queryProjects(user.id);
   if (!projects) {

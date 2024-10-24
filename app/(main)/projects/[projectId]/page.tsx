@@ -2,6 +2,7 @@ import MainEditor from "@/app/MainEditor";
 import { decodeBase64UUID } from "@/app/lib/string";
 import { getVideoUrl, queryVideoData } from "@/app/lib/videos";
 import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
 
 export default async function Editor({
   params,
@@ -13,7 +14,7 @@ export default async function Editor({
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    return <p>Ya aint logged in boi</p>;
+    redirect("/login");
   }
   const projectId = decodeBase64UUID(params.projectId);
   const loadedVideoData = await queryVideoData(projectId);

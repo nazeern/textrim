@@ -187,7 +187,7 @@ export async function exportFinalVideo(ffmpegTrimData: ExportData): Promise<Expo
     }
 }
 
-const AUDIO_EXTRACT_FACTOR = 0.1
+const AUDIO_EXTRACT_FACTOR = 0.4
 
 export async function waitForAudioExtract(filepath: string, videoDuration: number): Promise<boolean> {
     if (!process.env.BUCKET_NAME) {

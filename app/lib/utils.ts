@@ -314,3 +314,16 @@ export function timestampString(dateString: string) {
   const date = new Date(dateString)
   return date.toDateString()
 }
+
+const PER_MINUTE_RATE = 0.08
+export function calculateCost(totalMinutesTranscribed: number) {
+  return round(PER_MINUTE_RATE * totalMinutesTranscribed)
+}
+
+export function round(value: number, n: number = 2) {
+  return parseFloat(value.toFixed(n))
+}
+
+export function currencyString(value: number) {
+  return "$" + round(value).toString()
+}
