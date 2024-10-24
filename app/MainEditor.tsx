@@ -17,11 +17,7 @@ import { PopupWrapper } from "./ui/popup-wrapper";
 import { ExportModal } from "./ui/export-modal";
 import {
   calculateVideoDuration,
-  delay,
   getFfmpegTrimData,
-  intervalsToKeep,
-  intervalsToSkip,
-  processVideoTranscript,
   timeString,
   validateVideo,
 } from "./lib/utils";
@@ -154,6 +150,7 @@ export default function MainEditor({
           <SideRail
             videoData={videoData}
             allowedEmptyGap={allowedEmptyGap}
+            projectId={projectId}
             setVideoData={setVideoData}
             setChanges={setChanges}
             setAllowedEmptyGap={setAllowedEmptyGap}
@@ -337,12 +334,13 @@ export default function MainEditor({
       };
     });
 
+    const filename = `${projectId}_${file.name}`;
     console.log("Uploading video...");
     setVideoData((videoData) => [
       ...videoData,
       {
-        id: file.name,
-        filename: file.name,
+        id: filename,
+        filename: filename,
         sourceUrl: null,
         transcript: null,
         position: videoData.length,
@@ -350,7 +348,7 @@ export default function MainEditor({
         status: VideoDataStatus.UPLOADING,
       },
     ]);
-    const signedUploadURL = await getVideoUrl(file.name, "write", 3);
+    const signedUploadURL = await getVideoUrl(filename, "write", 3);
     const response = await fetch(signedUploadURL, {
       method: "PUT",
       body: file,
@@ -358,12 +356,12 @@ export default function MainEditor({
     if (!response.ok) {
       alert("Video upload failed. Please try again.");
     }
-    const sourceUrl = await getVideoUrl(file.name, "read");
+    const sourceUrl = await getVideoUrl(filename, "read");
 
     console.log("Extracting audio...");
     setVideoData((videoData) =>
       videoData.map((vd) =>
-        vd.id === file.name
+        vd.id === filename
           ? {
               ...vd,
               sourceUrl: sourceUrl,
@@ -373,7 +371,7 @@ export default function MainEditor({
           : vd
       )
     );
-    const foundAudio = await waitForAudioExtract(file.name, videoDuration);
+    const foundAudio = await waitForAudioExtract(filename, videoDuration);
     if (!foundAudio) {
       console.log("Could not extract audio. Please try again.");
       alert("Could not extract audio. Please try again.");
@@ -383,18 +381,18 @@ export default function MainEditor({
     console.log("Transcribing...");
     setVideoData((videoData) =>
       videoData.map((vd) =>
-        vd.id === file.name
+        vd.id === filename
           ? { ...vd, status: VideoDataStatus.TRANSCRIBING }
           : vd
       )
     );
     // await delay(5 * 1000)
-    const newTranscript = await getVideoTranscript(file.name, videoDuration);
+    const newTranscript = await getVideoTranscript(filename, videoDuration);
     // const newTranscript = sampleTranscriptionResponse;
     // const newTranscript = [];
     setVideoData((videoData) =>
       videoData.map((vd) =>
-        vd.id === file.name
+        vd.id === filename
           ? {
               ...vd,
               transcript: newTranscript,

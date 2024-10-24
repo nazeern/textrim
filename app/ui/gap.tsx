@@ -1,5 +1,6 @@
 import { CSSProperties } from "react";
 import { WordInfo } from "../lib/videos";
+import { timeString } from "../lib/utils";
 
 export default function Word({
   wordInfo,
@@ -36,7 +37,7 @@ export default function Word({
         ...format,
       }}
     >
-      {`[${Math.trunc(wordInfo.end - wordInfo.start)}s]`}
+      {`[${timeString(wordInfo.end - wordInfo.start)}]`}
     </span>
   );
 }

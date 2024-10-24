@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useRef, useState } from "react";
 import { WordInfo } from "../lib/videos";
-import { nestedListAt, range } from "../lib/utils";
+import { extractFilename, nestedListAt, range } from "@/app/lib/utils";
 import {
   Change,
   PlayFrom,
@@ -89,7 +89,7 @@ export default function TextEditor({
             return (
               <>
                 <p className="h-6 text-sm italic text-gray-500 w-full">
-                  {vd.filename}
+                  {extractFilename(vd.filename)}
                 </p>
                 {vd.transcript?.map((wordInfo, index) => {
                   if (hideSkippedWords && wordInfo.skip) {

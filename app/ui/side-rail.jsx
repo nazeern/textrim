@@ -26,7 +26,7 @@ import { UPLOAD_FACTOR } from "./upload-status";
 const ALLOWED_GAP_DEFAULT = 0.5;  // seconds
 
 export default function SideRail(
-  { videoData, allowedEmptyGap, setVideoData, setChanges, setAllowedEmptyGap, setToastData }
+  { videoData, allowedEmptyGap, projectId, setVideoData, setChanges, setAllowedEmptyGap, setToastData }
 ) {
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -44,7 +44,7 @@ export default function SideRail(
 
   return (
     <div className="h-full flex flex-col gap-y-1 mx-6">
-      <label>
+      {/* <label>
         <input 
           type="checkbox"
           className="mr-1"
@@ -52,7 +52,7 @@ export default function SideRail(
           value={removingEmptyIntervals}
         />
         Remove empty intervals
-      </label>
+      </label> */}
       {removingEmptyIntervals && (
         <label>
           longer than 
@@ -134,13 +134,13 @@ export default function SideRail(
       }
     })
 
-
+    const filename = `${projectId}_${file.name}`
     console.log("Uploading video...")
     setVideoData(videoData => [
       ...videoData,
       {
-        id: file.name,
-        filename: file.name,
+        id: filename,
+        filename: filename,
         sourceUrl: null,
         transcript: null,
         position: videoData.length,
@@ -148,7 +148,7 @@ export default function SideRail(
         status: VideoDataStatus.UPLOADING,
       }
     ])
-    const signedUploadURL = await getVideoUrl(file.name, "write", 3);
+    const signedUploadURL = await getVideoUrl(filename, "write", 3);
     const response = await fetch(signedUploadURL, {
       method: "PUT",
       body: file,
@@ -156,20 +156,20 @@ export default function SideRail(
     if (!response.ok) {
       alert("Video upload failed. Please try again.")
     }
-    const sourceUrl = await getVideoUrl(file.name, "read")
+    const sourceUrl = await getVideoUrl(filename, "read")
 
 
 
     console.log("Extracting audio...")
     setVideoData(videoData => videoData.map(
-      vd => vd.id === file.name ? {
+      vd => vd.id === filename ? {
         ...vd,
         sourceUrl: sourceUrl, 
         duration: videoDuration, 
         status: VideoDataStatus.EXTRACTING
       } : vd
     ))
-    const foundAudio = await waitForAudioExtract(file.name, videoDuration)
+    const foundAudio = await waitForAudioExtract(filename, videoDuration)
     if (!foundAudio) {
       console.log("Could not extract audio. Please try again.")
       alert("Could not extract audio. Please try again.")
@@ -180,14 +180,14 @@ export default function SideRail(
 
     console.log("Transcribing...")
     setVideoData(videoData => videoData.map(
-      vd => vd.id === file.name ? {...vd, status: VideoDataStatus.TRANSCRIBING} : vd
+      vd => vd.id === filename ? {...vd, status: VideoDataStatus.TRANSCRIBING} : vd
     ))
     // await delay(5 * 1000)
-    const newTranscript = await getVideoTranscript(file.name, videoDuration)
+    const newTranscript = await getVideoTranscript(filename, videoDuration)
     // const newTranscript = sampleTranscriptionResponse;
     // const newTranscript = [];
     setVideoData(videoData => videoData.map(
-      (vd) => vd.id === file.name ? {
+      (vd) => vd.id === filename ? {
         ...vd,
         transcript: newTranscript,
         status: VideoDataStatus.COMPLETE,

@@ -296,9 +296,9 @@ export function closeTo(a: number, b: number, dist: number) {
 }
 
 export function timeString(totalSeconds: number): string {
-  const rounded = Math.round(totalSeconds)
+  const rounded = round(totalSeconds, 1)
   const minutes = Math.floor(rounded / 60)
-  const seconds = rounded % 60
+  const seconds = totalSeconds <= 0.94 ? round(rounded % 60, 1) : round(rounded % 60, 0)
 
   const output = []
   if (minutes) {
@@ -326,4 +326,8 @@ export function round(value: number, n: number = 2) {
 
 export function currencyString(value: number) {
   return "$" + round(value).toString()
+}
+
+export function extractFilename(filename: string): string {
+  return filename.slice(filename.indexOf("_") + 1)
 }
