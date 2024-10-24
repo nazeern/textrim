@@ -20,7 +20,7 @@ export default async function ProjectsDashboard() {
     <div className="px-1 max-w-4xl w-full flex flex-col gap-y-4">
       <p className="font-bold text-3xl">Your Projects</p>
       <AddProject userId={user.id} hasNoProjects={!projects.length} />
-      <ProjectsList userId={user.id} projects={projects} />
+      <ProjectsList projects={projects} />
     </div>
   );
 }
