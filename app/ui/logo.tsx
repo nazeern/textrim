@@ -36,7 +36,7 @@ export function LogoTitle({
           "": fontColor == "dark",
         })}
       >
-        Trext
+        SimpleClip
       </p>
     </Link>
   );
