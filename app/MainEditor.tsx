@@ -30,7 +30,7 @@ import {
 import Toast from "./ui/toast";
 import { UPLOAD_FACTOR } from "./ui/upload-status";
 import { stripeMeterEvent } from "./lib/stripe";
-import { Plan } from "./(main)/pricing/page";
+import { Plan } from "./ui/plan-card";
 
 const WAIT_FOR_INACTIVITY_SECONDS = 5;
 const EXPORT_FACTOR = 0.6;

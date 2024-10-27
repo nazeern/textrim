@@ -10,7 +10,7 @@ import { useState } from "react";
 import { subscribeUser } from "../lib/profiles";
 import { User } from "@supabase/auth-js";
 import { BASE_URL_DEFAULT } from "../constants";
-import { Plan } from "@/app/(main)/pricing/page";
+import { Plan } from "./plan-card";
 
 export default function CheckoutForm({
   user,

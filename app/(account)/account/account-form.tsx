@@ -41,6 +41,10 @@ export default function AccountForm({ user }: { user: User | null }) {
   async function updateProfile({ name }: { name: string | null }) {
     try {
       setLoading(true);
+      if (!name) {
+        alert("Name cannot be empty!");
+        return;
+      }
 
       const { error } = await supabase.from("profiles").upsert({
         id: user?.id as string,
