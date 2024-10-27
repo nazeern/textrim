@@ -181,9 +181,9 @@ export default async function PlanCard({
       {/* Bullets */}
       <p className="text-sm font-light mb-4">{data.bulletHeader}</p>
       <div className="flex flex-col gap-y-4">
-        {data.bullets.map((bullet) => {
+        {data.bullets.map((bullet, index) => {
           return (
-            <div className="flex items-center gap-x-1">
+            <div key={index} className="flex items-center gap-x-1">
               <CheckCircleIcon className="stroke-2 size-4 text-green-700 shrink-0" />
               <p className="text-sm">{bullet}</p>
             </div>
