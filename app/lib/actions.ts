@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 
 import { createClient } from '@/utils/supabase/server'
 import { AuthApiError } from '@supabase/supabase-js'
+import { round } from './utils'
 
 export async function login(formData: FormData) {
   const supabase = createClient()
@@ -46,7 +47,7 @@ export async function signup(formData: FormData) {
     password: formData.get('password') as string,
   }
 
-  // attempt login
+  // attempt login, existing users redirect to /projects
   const { error: loginError } = await supabase.auth.signInWithPassword(loginData)
   if (!loginError) {
     redirect('/projects')
@@ -67,19 +68,20 @@ export async function signup(formData: FormData) {
   const params = new URLSearchParams();
   // on error, return with message
   if (error instanceof AuthApiError) {
+    console.log(error)
     const errorString = "Oops, account creation failed!"
     params.set('error', errorString)
     redirect(`/sign-up?${params.toString()}`)
   }
   revalidatePath('/', 'layout')
 
-  // on success, redirect to login with message
+  // new user, redirect to login with message
   const redirectTo = formData.get('redirectTo') as string
   if (redirectTo) {
     redirect(redirectTo)
   } else {
     params.set('success', 'Congrats! Check your inbox for a confirmation email.')
-    params.set('redirectTo', '/projects')
+    params.set('redirectTo', '/pricing')
     redirect(`/login?${params.toString()}`)
   }
 }

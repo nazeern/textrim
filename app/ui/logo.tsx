@@ -31,7 +31,7 @@ export function LogoTitle({
         className="rounded-lg border border-primary"
       />
       <p
-        className={clsx("text-2xl font-semibold", {
+        className={clsx("text-2xl font-medium", {
           "text-secondary": fontColor == "light",
           "": fontColor == "dark",
         })}

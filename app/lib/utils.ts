@@ -68,10 +68,10 @@ export function range(start: number = 0, end: number): number[] {
   return vals
 }
 
-export function validateVideo(file: File, videoData: VideoData[]): string | null {
+export function validateVideo(file: File, projectId: string, videoData: VideoData[]): string | null {
   if (file.size >= 3 * 1024 * 1024 * 1024) {
       return "File size must be below 3GB."
-  } else if (videoData.map(({ filename }) => filename).includes(file.name)) {
+  } else if (videoData.map(({ filename }) => filename).includes(projectId + "_" + file.name)) {
       return "File already exists."
   } else {
     return null

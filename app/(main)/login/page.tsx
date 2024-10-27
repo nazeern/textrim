@@ -42,7 +42,7 @@ export default async function LoginPage({
         <p className="text-2xl font-bold mb-6">Log in to your account</p>
         {/* Sign in with Google */}
         <div className="flex justify-center">
-          <GoogleButton />
+          <GoogleButton next="/projects" />
         </div>
         {/* Divider */}
         <div className="flex items-center justify-center my-6">

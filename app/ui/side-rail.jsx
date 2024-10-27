@@ -17,16 +17,17 @@ import {
 import { Thumbnail } from "./Thumbnail";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { getVideoUrl, getVideoTranscript, waitForAudioExtract } from "../lib/videos";
-import { calculateVideoDuration, delay, validateVideo } from "../lib/utils";
+import { calculateVideoDuration, delay, validateVideo, round } from "../lib/utils";
 import { sampleTranscriptionResponse } from "../lib/data";
 import { VideoDataStatus } from "../MainEditor";
 import { UPLOAD_FACTOR } from "./upload-status";
+import { stripeMeterEvent } from "../lib/stripe";
 
 
 const ALLOWED_GAP_DEFAULT = 0.5;  // seconds
 
 export default function SideRail(
-  { videoData, allowedEmptyGap, projectId, setVideoData, setChanges, setAllowedEmptyGap, setToastData }
+  { videoData, allowedEmptyGap, userId, projectId, setVideoData, setChanges, setAllowedEmptyGap, setToastData }
 ) {
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -53,6 +54,9 @@ export default function SideRail(
         />
         Remove empty intervals
       </label> */}
+      <button onClick={() => stripeMeterEvent(videoData?.[0]?.duration / 60)} className="mx-1 w-16 px-1 border border-primary rounded-md">
+        Stripe Meter Event
+      </button>
       {removingEmptyIntervals && (
         <label>
           longer than 
@@ -121,7 +125,7 @@ export default function SideRail(
 
   /** Validate and upload a single file. */
   async function handleSingleFileUpload(file) {
-    const error = validateVideo(file, videoData);
+    const error = validateVideo(file, projectId, videoData);
     if (error) {
       return alert(error);
     }
@@ -193,6 +197,7 @@ export default function SideRail(
         status: VideoDataStatus.COMPLETE,
       } : vd
     ))
+    await stripeMeterEvent(userId, videoDuration);
   }
 
 

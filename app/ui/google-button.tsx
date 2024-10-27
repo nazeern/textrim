@@ -4,10 +4,14 @@ import { createClient } from "@/utils/supabase/client";
 import styles from "./google-button.module.css";
 import { BASE_URL_DEFAULT } from "@/app/constants";
 
-export default function GoogleButton() {
+export default function GoogleButton({
+  next,
+}: {
+  next: "/pricing" | "/projects";
+}) {
   const supabase = createClient();
   const searchParams = new URLSearchParams();
-  searchParams.set("next", "/projects");
+  searchParams.set("next", next);
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? BASE_URL_DEFAULT;
 

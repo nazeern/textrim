@@ -12,17 +12,20 @@ export type Database = {
       profiles: {
         Row: {
           id: string
-          name: string | null
+          name: string
+          stripe_id: string | null
           updated_at: string | null
         }
         Insert: {
           id: string
-          name?: string | null
+          name: string
+          stripe_id?: string | null
           updated_at?: string | null
         }
         Update: {
           id?: string
-          name?: string | null
+          name?: string
+          stripe_id?: string | null
           updated_at?: string | null
         }
         Relationships: []

@@ -29,6 +29,8 @@ import {
 } from "@heroicons/react/24/solid";
 import Toast from "./ui/toast";
 import { UPLOAD_FACTOR } from "./ui/upload-status";
+import { stripeMeterEvent } from "./lib/stripe";
+import { Plan } from "./(main)/pricing/page";
 
 const WAIT_FOR_INACTIVITY_SECONDS = 5;
 const EXPORT_FACTOR = 0.6;
@@ -82,9 +84,13 @@ export enum SavingState {
 export default function MainEditor({
   loadedVideoData,
   projectId,
+  userId,
+  plan,
 }: {
   loadedVideoData: VideoData[];
   projectId: string;
+  userId: string;
+  plan: Plan;
 }) {
   const [showExportModal, setShowExportModal] = useState<boolean>(false);
   const [toastData, setToastData] = useState<ToastData | null>();
@@ -151,6 +157,7 @@ export default function MainEditor({
             videoData={videoData}
             allowedEmptyGap={allowedEmptyGap}
             projectId={projectId}
+            userId={userId}
             setVideoData={setVideoData}
             setChanges={setChanges}
             setAllowedEmptyGap={setAllowedEmptyGap}
@@ -314,7 +321,7 @@ export default function MainEditor({
 
   /** Validate and upload a single file. */
   async function handleSingleFileUpload(file: File) {
-    const error = validateVideo(file, videoData);
+    const error = validateVideo(file, projectId, videoData);
     if (error) {
       return alert(error);
     }
@@ -390,6 +397,7 @@ export default function MainEditor({
     const newTranscript = await getVideoTranscript(filename, videoDuration);
     // const newTranscript = sampleTranscriptionResponse;
     // const newTranscript = [];
+    await stripeMeterEvent(userId, videoDuration);
     setVideoData((videoData) =>
       videoData.map((vd) =>
         vd.id === filename

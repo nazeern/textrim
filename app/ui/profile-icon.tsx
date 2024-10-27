@@ -19,10 +19,7 @@ export default function ProfileIcon({ initial }: { initial?: string }) {
     loginSearchParams.set("redirectTo", "/projects");
 
     const signupSearchParams = new URLSearchParams();
-    signupSearchParams.set(
-      "redirectTo",
-      `/login?${loginSearchParams.toString()}`
-    );
+    signupSearchParams.set("redirectTo", `/login`);
     return (
       <div className="flex gap-x-3">
         <Link

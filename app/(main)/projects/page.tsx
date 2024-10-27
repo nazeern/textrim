@@ -10,7 +10,9 @@ export default async function ProjectsDashboard() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    redirect("/login");
+    const searchParams = new URLSearchParams();
+    searchParams.set("redirectTo", "/projects");
+    redirect(`/login?${searchParams.toString()}`);
   }
   const projects = await queryProjects(user.id);
   if (!projects) {
