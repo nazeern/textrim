@@ -347,6 +347,7 @@ export default function MainEditor({
     });
 
     const filename = `${projectId}_${file.name}`;
+
     console.log("Uploading video...");
     setVideoData((videoData) => [
       ...videoData,
@@ -385,8 +386,12 @@ export default function MainEditor({
     );
     const foundAudio = await waitForAudioExtract(filename, videoDuration);
     if (!foundAudio) {
-      console.log("Could not extract audio. Please try again.");
-      alert("Could not extract audio. Please try again.");
+      console.log(
+        "Could not extract audio. It's possible this video has no audio stream."
+      );
+      alert(
+        `Could not extract audio for file ${file.name}. It's possible this video has no audio stream.`
+      );
       return;
     }
 
