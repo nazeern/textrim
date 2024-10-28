@@ -28,6 +28,30 @@ export namespace Plan {
         return Plan.FREE;
     }
   }
+  export function includedMinutes(plan: Plan): number {
+    switch (plan) {
+      case Plan.FREE:
+        return 50;
+      case Plan.USAGE:
+        return Infinity;
+      case Plan.MONTHLY:
+        return 1000;
+      case Plan.YEARLY:
+        return 1000;
+    }
+  }
+  export function toPlanString(plan: Plan): string {
+    switch (plan) {
+      case Plan.FREE:
+        return "Free";
+      case Plan.USAGE:
+        return "Pay as you Go";
+      case Plan.MONTHLY:
+        return "Monthly";
+      case Plan.YEARLY:
+        return "Yearly";
+    }
+  }
 }
 
 type PlanDetails = {

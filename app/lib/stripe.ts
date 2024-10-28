@@ -3,7 +3,8 @@
 import { createClient } from "@/utils/supabase/server"
 import { User } from "@supabase/auth-js";
 import { round } from "./utils";
-import { queryCustomerId } from "./profiles";
+import { getCurrentPlan, queryCustomerId } from "./profiles";
+import { Plan } from "../ui/plan-card";
 
 /* Try to get the existing stripe customer id. Else, create a new Stripe customer.*/
 export async function stripeCustomer(stripe: any, user: User): Promise<string | null> {
@@ -93,18 +94,20 @@ export async function stripeMeterEvent(userId: string, value: number): Promise<b
     if (!process.env.STRIPE_SECRET_KEY) { return false }
     const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
 
-    const customerId = await queryCustomerId(userId)
+    const { customerId, plan } = await getCurrentPlan(userId)
     if (!customerId) { 
         console.log(`Failed to meter ${value} for user ${userId}`)
     }
-  
-    console.log(`Sending meter event of ${value}`)
-    const meterEvent = await stripe.v2.billing.meterEvents.create({
-      event_name: 'simpleclip_minutes_transcribed',
-      payload: {
-        stripe_customer_id: customerId,
-        value: round(value / 60, 12).toString(),
-      },
-    });
+    // Only meter on usage plans
+    if (plan == Plan.USAGE) {
+        console.log(`Sending meter event of ${value}`)
+        const meterEvent = await stripe.v2.billing.meterEvents.create({
+        event_name: 'simpleclip_minutes_transcribed',
+        payload: {
+            stripe_customer_id: customerId,
+            value: round(value, 12).toString(),
+        },
+        });
+    }
     return true
   }

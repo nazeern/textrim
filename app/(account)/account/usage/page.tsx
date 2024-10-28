@@ -1,10 +1,10 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
-import { queryUsage, UsageData } from "@/app/lib/projects";
 import UsageCard from "@/app/ui/usage-card";
 import { currencyString } from "@/app/lib/utils";
 import ProjectRow from "@/app/ui/project-row";
 import ProjectsList from "@/app/ui/projects-list";
+import { queryUsage } from "@/app/lib/profiles";
 
 export default async function UsagePage() {
   const supabase = createClient();
@@ -14,7 +14,7 @@ export default async function UsagePage() {
   if (!user) {
     redirect("/login");
   }
-  const usageData: UsageData | null = await queryUsage(user.id);
+  const usageData = await queryUsage(user.id);
   if (!usageData) {
     return <p>Problem fetching usage data. We are working to resolve this.</p>;
   }

@@ -3,6 +3,10 @@
 import { User } from "@supabase/auth-js";
 import { stripeCustomer, createStripeSubscription, removeOtherSubscriptions } from "./stripe";
 import { createClient } from "@/utils/supabase/server";
+import { calculateCost, round, timestampString } from "./utils";
+import { Duration } from "./classes";
+import { encodeBase64UUID } from "./string";
+import { Project } from "./projects";
 
 enum Plan {
     FREE,
@@ -81,13 +85,18 @@ export async function queryCustomerId(userId: string): Promise<string | null> {
     return data.stripe_id
 }
 
+type CurrentPlanResponse = {
+    customerId?: string,
+    plan: Plan,
+}
 
 /* Get userId's current plan from Stripe. */
-export async function getCurrentPlan(userId: string): Promise<Plan> {
+export async function getCurrentPlan(userId?: string): Promise<CurrentPlanResponse> {
+    if (!userId) { return { plan: Plan.FREE } }
     const customerId = await queryCustomerId(userId)
-    if (!customerId) { return Plan.FREE }
+    if (!customerId) { return { plan: Plan.FREE } }
 
-    if (!process.env.STRIPE_SECRET_KEY) { return Plan.FREE }
+    if (!process.env.STRIPE_SECRET_KEY) { return { plan: Plan.FREE } }
     const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
 
     const subscriptions = await stripe.subscriptions.list({
@@ -96,5 +105,50 @@ export async function getCurrentPlan(userId: string): Promise<Plan> {
         limit: 1,
     })
     const priceId = subscriptions.data?.[0]?.items?.data?.[0]?.price?.id
-    return Plan.fromPriceId(priceId)
+    return { 
+        customerId: customerId,
+        plan: Plan.fromPriceId(priceId),
+    }
+}
+
+type UsageData = {
+    totalMinutesTranscribed: number,
+    totalCost: number,
+    topProjects: Project[],
+}
+
+export async function queryUsage(userId: string): Promise<UsageData | null> {
+    const supabase = createClient()
+    const { data, error } = await supabase
+        .from('projects')
+        .select(`
+            id,
+            name,
+            created_at,
+            videos (duration)
+        `)
+        .eq('user_id', userId)
+    if (!data) { return null }
+
+    const topProjects = data.map((proj) => ({
+        encodedId: encodeBase64UUID(proj.id),
+        name: proj.name,
+        createdAt: timestampString(proj.created_at),
+        totalMinutesTranscribed: round(
+            Duration.fromDB(
+                proj.videos.reduce((acc, video) => {
+                    return acc + video.duration
+                }, 0)
+            ) / 60,
+        ),
+    }))
+    const totalMinutesTranscribed = topProjects?.reduce((acc, proj) => {
+        return acc + proj.totalMinutesTranscribed
+    }, 0)
+
+    return {
+        totalMinutesTranscribed: round(totalMinutesTranscribed),
+        totalCost: calculateCost(totalMinutesTranscribed),
+        topProjects: topProjects,
+    }
 }

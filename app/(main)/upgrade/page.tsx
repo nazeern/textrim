@@ -4,20 +4,23 @@ import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 
 export default async function UpgradePage({
-  params,
+  searchParams,
 }: {
-  params: { plan?: string };
+  searchParams: { plan?: string };
 }) {
   const supabase = createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const planString = params.plan;
+  const planString = searchParams.plan;
   if (!user) {
     const searchParams = new URLSearchParams();
     searchParams.set("redirectTo", `/upgrade?plan=${planString}`);
     redirect("/sign-up");
   }
-
-  return <AcceptPayment user={user} plan={Plan.fromPlanString(planString)} />;
+  const plan = Plan.fromPlanString(planString);
+  if (plan == Plan.FREE) {
+    redirect("/projects");
+  }
+  return <AcceptPayment user={user} plan={plan} />;
 }

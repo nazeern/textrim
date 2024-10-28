@@ -18,6 +18,7 @@ import { ExportModal } from "./ui/export-modal";
 import {
   calculateVideoDuration,
   getFfmpegTrimData,
+  round,
   timeString,
   validateVideo,
 } from "./lib/utils";
@@ -31,6 +32,7 @@ import Toast from "./ui/toast";
 import { UPLOAD_FACTOR } from "./ui/upload-status";
 import { stripeMeterEvent } from "./lib/stripe";
 import { Plan } from "./ui/plan-card";
+import ToastContent from "./ui/toast-content";
 
 const WAIT_FOR_INACTIVITY_SECONDS = 5;
 const EXPORT_FACTOR = 0.6;
@@ -86,14 +88,16 @@ export default function MainEditor({
   projectId,
   userId,
   plan,
+  loadedMinutesRemaining,
 }: {
   loadedVideoData: VideoData[];
   projectId: string;
   userId: string;
   plan: Plan;
+  loadedMinutesRemaining: number;
 }) {
   const [showExportModal, setShowExportModal] = useState<boolean>(false);
-  const [toastData, setToastData] = useState<ToastData | null>();
+  const [toastData, setToastData] = useState<ToastData | null>(null);
 
   const [windowWidth, setWindowWidth] = useState<number>(0);
   const isMounted = useRef<boolean>(false);
@@ -101,6 +105,9 @@ export default function MainEditor({
     SavingState.SAVED
   );
   const [videoData, setVideoData] = useState<VideoData[]>(loadedVideoData);
+  const [minutesRemaining, setMinutesRemaining] = useState<number>(
+    loadedMinutesRemaining
+  );
   const [playFrom, setPlayFrom] = useState<PlayFrom | null>(null);
   const [changes, setChanges] = useState<Change[]>([]);
   const [allowedEmptyGap, setAllowedEmptyGap] = useState<number>(Infinity);
@@ -143,11 +150,6 @@ export default function MainEditor({
   }, [videoData]);
 
   const showSideRail = windowWidth >= 1024;
-  const toastString = toastData
-    ? `Processing ${timeString(
-        toastData.totalUploadDuration
-      )} of video in estimated ${timeString(toastData.estimatedDuration)}...`
-    : null;
 
   return (
     <div className="w-full flex">
@@ -158,6 +160,9 @@ export default function MainEditor({
             allowedEmptyGap={allowedEmptyGap}
             projectId={projectId}
             userId={userId}
+            plan={plan}
+            minutesRemaining={minutesRemaining}
+            setMinutesRemaining={setMinutesRemaining}
             setVideoData={setVideoData}
             setChanges={setChanges}
             setAllowedEmptyGap={setAllowedEmptyGap}
@@ -168,18 +173,7 @@ export default function MainEditor({
       <div className="flex shrink flex-none flex-col gap-y-1 items-center">
         {toastData && (
           <Toast style="base">
-            <div className="flex justify-between gap-x-2">
-              <div className="italic flex flex-wrap w-full">
-                {toastString}
-                <Cog6ToothIcon className="size-5 animate-spin" />
-                {toastData.estimatedDuration > 300 && (
-                  <p className="ml-auto">Grab some coffee? ☕</p>
-                )}
-              </div>
-              <button onClick={() => setToastData(null)}>
-                <XCircleIcon className="size-5" />
-              </button>
-            </div>
+            <ToastContent toastData={toastData} setToastData={setToastData} />
           </Toast>
         )}
         <div className="flex w-full">
@@ -271,10 +265,15 @@ export default function MainEditor({
 
   async function saveVideoDataToDB(videoData: VideoData[]) {
     console.log("saving to DB");
-    console.log(videoData);
+    console.log(
+      videoData.filter((vd) => vd.status == VideoDataStatus.COMPLETE)
+    );
 
     setSavingToCloud(SavingState.SAVING);
-    const upserted = await upsertVideoData(projectId, videoData);
+    const upserted = await upsertVideoData(
+      projectId,
+      videoData.filter((vd) => vd.status == VideoDataStatus.COMPLETE)
+    );
     setSavingToCloud(SavingState.SAVED);
     // console.log(upserted);
   }
@@ -313,14 +312,14 @@ export default function MainEditor({
   async function handleMultipleFileUpload(event: any) {
     const files = Array.from(event.target.files);
 
-    const promises = files.map((file) => handleSingleFileUpload(file as File));
+    const promises = files.map((file) => handleSingleFileUpload(file));
     await Promise.all(promises);
 
     setToastData(null);
   }
 
   /** Validate and upload a single file. */
-  async function handleSingleFileUpload(file: File) {
+  async function handleSingleFileUpload(file: any) {
     const error = validateVideo(file, projectId, videoData);
     if (error) {
       return alert(error);
@@ -328,6 +327,12 @@ export default function MainEditor({
     const videoDuration = await calculateVideoDuration(file);
     if (videoDuration == null) {
       alert("Error uploading video. Please reload and try again!");
+      return;
+    }
+    const videoMinutes = videoDuration / 60;
+    const paywalled = plan == Plan.FREE && minutesRemaining < videoMinutes;
+    if (paywalled) {
+      // TODO: Show pop-up modal
       return;
     }
     setToastData((td) => {
@@ -397,7 +402,6 @@ export default function MainEditor({
     const newTranscript = await getVideoTranscript(filename, videoDuration);
     // const newTranscript = sampleTranscriptionResponse;
     // const newTranscript = [];
-    await stripeMeterEvent(userId, videoDuration);
     setVideoData((videoData) =>
       videoData.map((vd) =>
         vd.id === filename
@@ -409,5 +413,9 @@ export default function MainEditor({
           : vd
       )
     );
+    setMinutesRemaining((minutesRemaining) =>
+      Math.max(0, minutesRemaining - videoMinutes)
+    );
+    await stripeMeterEvent(userId, videoMinutes);
   }
 }

@@ -5,8 +5,16 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 import LoadingDots from "./loading_dots";
 import { login, signup } from "../lib/actions";
+import { BoltIcon } from "@heroicons/react/24/solid";
+import { Plan } from "./plan-card";
 
-export default function ProfileIcon({ initial }: { initial?: string }) {
+export default function ProfileIcon({
+  initial,
+  plan,
+}: {
+  initial?: string;
+  plan: Plan;
+}) {
   const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(false);
   if (isLoading) {
@@ -19,7 +27,10 @@ export default function ProfileIcon({ initial }: { initial?: string }) {
     loginSearchParams.set("redirectTo", "/projects");
 
     const signupSearchParams = new URLSearchParams();
-    signupSearchParams.set("redirectTo", `/login`);
+    signupSearchParams.set(
+      "redirectTo",
+      `/login?${loginSearchParams.toString()}`
+    );
     return (
       <div className="flex gap-x-3">
         <Link
@@ -38,17 +49,30 @@ export default function ProfileIcon({ initial }: { initial?: string }) {
     );
   }
 
-  // User logged in
+  // Logged in user, on editor
   if (pathname.startsWith("/projects")) {
     return (
-      <Link
-        onClick={() => setIsLoading(true)}
-        href="/account"
-        className="border border-primary bg-blue-100 rounded-full size-10 text-center align-middle pt-2
+      <div className="flex gap-x-12 items-center">
+        {plan == Plan.FREE && (
+          <Link
+            onClick={() => setIsLoading(true)}
+            href="/pricing"
+            className="flex items-center gap-x-2 border bg-purple-500 rounded-md
+            text-onprimary hover:border-complement px-2 py-1"
+          >
+            Upgrade
+            <BoltIcon className="stroke-onprimary size-3" />
+          </Link>
+        )}
+        <Link
+          onClick={() => setIsLoading(true)}
+          href="/account"
+          className="flex justify-center items-center border border-primary bg-blue-100 rounded-full size-10
             text-primary hover:border-complement"
-      >
-        {initial}
-      </Link>
+        >
+          {initial}
+        </Link>
+      </div>
     );
   } else {
     return (

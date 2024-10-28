@@ -22,12 +22,11 @@ import { sampleTranscriptionResponse } from "../lib/data";
 import { VideoDataStatus } from "../MainEditor";
 import { UPLOAD_FACTOR } from "./upload-status";
 import { stripeMeterEvent } from "../lib/stripe";
+import { Plan } from "@/app/ui/plan-card";
 
-
-const ALLOWED_GAP_DEFAULT = 0.5;  // seconds
 
 export default function SideRail(
-  { videoData, allowedEmptyGap, userId, projectId, setVideoData, setChanges, setAllowedEmptyGap, setToastData }
+  { videoData, allowedEmptyGap, userId, projectId, plan, minutesRemaining, setMinutesRemaining, setVideoData, setChanges, setAllowedEmptyGap, setToastData }
 ) {
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -54,9 +53,7 @@ export default function SideRail(
         />
         Remove empty intervals
       </label> */}
-      <button onClick={() => stripeMeterEvent(videoData?.[0]?.duration / 60)} className="mx-1 w-16 px-1 border border-primary rounded-md">
-        Stripe Meter Event
-      </button>
+      <p>{`Minutes Remaining: ${round(minutesRemaining,0)}`}</p>
       {removingEmptyIntervals && (
         <label>
           longer than 
@@ -69,7 +66,7 @@ export default function SideRail(
            second(s)
         </label>
       )}
-      <div className="flex flex-col gap-y-2 w-64 border border-primary p-1 h-1/2 rounded-md">
+      <div className="flex flex-col gap-y-2 w-64 border border-primary p-1 h-3/4 rounded-md overflow-y-scroll">
         <label 
           htmlFor="videoFile"
           className="flex justify-center items-center text-onprimary bg-primary py-2 rounded-lg hover:cursor-pointer hover:bg-primaryhov"
@@ -120,7 +117,7 @@ export default function SideRail(
     const promises = files.map((file) => handleSingleFileUpload(file))
     await Promise.all(promises)
 
-    setToastData(null)
+    setToastData(null);
   }
 
   /** Validate and upload a single file. */
@@ -130,6 +127,16 @@ export default function SideRail(
       return alert(error);
     }
     const videoDuration = await calculateVideoDuration(file);
+    if (videoDuration == null) {
+      alert("Error uploading video. Please reload and try again!");
+      return;
+    }
+    const videoMinutes = videoDuration / 60;
+    const paywalled = plan == Plan.FREE && minutesRemaining < videoMinutes;
+    if (paywalled) {
+      // TODO: Show pop-up modal
+      return;
+    }
     setToastData((td) => {
       const estimatedDuration = UPLOAD_FACTOR * videoDuration;
       return {
@@ -139,6 +146,7 @@ export default function SideRail(
     })
 
     const filename = `${projectId}_${file.name}`
+
     console.log("Uploading video...")
     setVideoData(videoData => [
       ...videoData,
@@ -175,8 +183,8 @@ export default function SideRail(
     ))
     const foundAudio = await waitForAudioExtract(filename, videoDuration)
     if (!foundAudio) {
-      console.log("Could not extract audio. Please try again.")
-      alert("Could not extract audio. Please try again.")
+      console.log("Could not extract audio. It's possible this video has no audio stream.")
+      alert(`Could not extract audio for file ${file.name}. It's possible this video has no audio stream.`)
       return
     }
 
@@ -197,7 +205,10 @@ export default function SideRail(
         status: VideoDataStatus.COMPLETE,
       } : vd
     ))
-    await stripeMeterEvent(userId, videoDuration);
+    setMinutesRemaining(
+      (minutesRemaining) => Math.max(0, minutesRemaining - videoMinutes)
+    );
+    await stripeMeterEvent(userId, videoMinutes);
   }
 
 
