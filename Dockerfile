@@ -1,3 +1,5 @@
+ARG SKIP_COPY=false
+
 FROM node:18-alpine AS base
 
 # Install dependencies only when needed
@@ -46,7 +48,7 @@ RUN chown nextjs:nodejs .next
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-COPY /home/nazeern/service-key-speech-to-text.json /app/service-key-speech-to-text.json
+COPY /home/nazeern/service-key-speech-to-text.jso[n] /app/service-key-speech-to-text.json
 
 USER nextjs
 
