@@ -19,6 +19,7 @@ export default function VideoPlayer({ videoData, playFrom, allowedEmptyGap, setP
   const sourceUrls = videoData.map(({ sourceUrl }) => sourceUrl);
 
   useEffect(() => {
+    if (!videoData?.length) { return }
     const video = videoRef.current
 
     // On new sourceIdx, seek to start or skip to next video as needed

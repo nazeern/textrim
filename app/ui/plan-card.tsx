@@ -164,7 +164,7 @@ export default async function PlanCard({
   return (
     <div
       className={cn(
-        "xl:mt-12 h-fit p-8 rounded-lg border border-gray-400 bg-white",
+        "xl:mt-12 h-fit p-8 rounded-lg border border-gray-400 bg-white mb-4",
         {
           "border-primary border-2": data.featured,
           "xl:mt-0": data.tag,

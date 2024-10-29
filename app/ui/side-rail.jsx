@@ -26,7 +26,7 @@ import { Plan } from "@/app/ui/plan-card";
 
 
 export default function SideRail(
-  { videoData, allowedEmptyGap, userId, projectId, plan, minutesRemaining, setMinutesRemaining, setVideoData, setChanges, setAllowedEmptyGap, setToastData }
+  { videoData, allowedEmptyGap, userId, projectId, plan, minutesRemaining, setShowUpsellModal, setMinutesRemaining, setVideoData, setChanges, setAllowedEmptyGap, setToastData }
 ) {
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -134,7 +134,7 @@ export default function SideRail(
     const videoMinutes = videoDuration / 60;
     const paywalled = plan == Plan.FREE && minutesRemaining < videoMinutes;
     if (paywalled) {
-      // TODO: Show pop-up modal
+      setShowUpsellModal(true)
       return;
     }
     setToastData((td) => {

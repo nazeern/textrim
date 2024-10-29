@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import LoadingDots from "./loading_dots";
-import { login, signup } from "../lib/actions";
 import { BoltIcon } from "@heroicons/react/24/solid";
 import { Plan } from "./plan-card";
 
@@ -52,7 +51,7 @@ export default function ProfileIcon({
   // Logged in user, on editor
   if (pathname.startsWith("/projects")) {
     return (
-      <div className="flex gap-x-12 items-center">
+      <div className="flex gap-x-3 md:gap-x-12 items-center">
         {plan == Plan.FREE && (
           <Link
             onClick={() => setIsLoading(true)}
@@ -80,7 +79,7 @@ export default function ProfileIcon({
         href="/projects"
         className="text-sm font-semibold leading-6 bg-blue-600 text-onprimary py-1 px-2 border border-blue-500 rounded-lg hover:bg-primary hover:border-blue-400"
       >
-        Your Dashboard
+        Dashboard
       </Link>
     );
   }

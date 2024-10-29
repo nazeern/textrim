@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 
+const ticksPerSecond = 7;
+
 export default function ProgressBar({
   duration,
   height,
@@ -9,25 +11,26 @@ export default function ProgressBar({
   duration: number;
   height: number;
 }) {
-  const progressInterval = useRef<NodeJS.Timeout>();
-  const progressPerSecond = (1 / duration) * 100;
+  const progressInterval = useRef<number | undefined>();
+  const progressPerTick = ((1 / duration) * 100) / ticksPerSecond;
   const [progress, setProgress] = useState<number>(0);
 
   useEffect(() => {
-    progressInterval.current = setInterval(() => {
+    setProgress(0);
+    progressInterval.current = window.setInterval(() => {
       setProgress((progress) => {
-        if (progress + progressPerSecond > 99) {
+        if (progress + progressPerTick > 99) {
           clearInterval(progressInterval.current);
           return 99;
         } else {
-          return progress + progressPerSecond;
+          return progress + progressPerTick;
         }
       });
-    }, 1000);
+    }, 1000 / ticksPerSecond);
 
     return () => {
-      clearInterval(progressInterval.current);
-      setProgress((progress) => 0);
+      window.clearInterval(progressInterval.current);
+      setProgress(0);
     };
   }, []);
 

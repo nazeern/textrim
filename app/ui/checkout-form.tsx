@@ -11,6 +11,7 @@ import { subscribeUser } from "../lib/profiles";
 import { User } from "@supabase/auth-js";
 import { BASE_URL_DEFAULT } from "../constants";
 import { Plan } from "./plan-card";
+import { LockClosedIcon } from "@heroicons/react/24/solid";
 
 export default function CheckoutForm({
   user,
@@ -28,10 +29,19 @@ export default function CheckoutForm({
   return (
     <form onSubmit={handleSubmit}>
       <PaymentElement />
-      <button type="submit" disabled={!stripe || loading}>
+      <button
+        type="submit"
+        disabled={!stripe || loading}
+        className="mt-6 w-full justify-center items-center gap-x-3 flex text-onprimary px-1 py-2 rounded-lg bg-primary hover:bg-primaryhov"
+      >
         Submit Payment
+        <LockClosedIcon className="size-5" />
       </button>
-      {errorMessage && <div>{errorMessage}</div>}
+      {errorMessage && (
+        <div className="bg-primarybg p-2 text-primary text-center rounded-lg mt-4 border border-primary">
+          {errorMessage}
+        </div>
+      )}
     </form>
   );
 

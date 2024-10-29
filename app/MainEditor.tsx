@@ -33,9 +33,11 @@ import { UPLOAD_FACTOR } from "./ui/upload-status";
 import { stripeMeterEvent } from "./lib/stripe";
 import { Plan } from "./ui/plan-card";
 import ToastContent from "./ui/toast-content";
+import UpsellModal from "./ui/upsell-modal";
 
 const WAIT_FOR_INACTIVITY_SECONDS = 5;
 const EXPORT_FACTOR = 0.6;
+const ticksPerSecond = 7;
 
 export type Change = EditorChange | VideosChange;
 
@@ -96,6 +98,7 @@ export default function MainEditor({
   plan: Plan;
   loadedMinutesRemaining: number;
 }) {
+  const [showUpsellModal, setShowUpsellModal] = useState<boolean>(false);
   const [showExportModal, setShowExportModal] = useState<boolean>(false);
   const [toastData, setToastData] = useState<ToastData | null>(null);
 
@@ -113,7 +116,11 @@ export default function MainEditor({
   const [allowedEmptyGap, setAllowedEmptyGap] = useState<number>(Infinity);
   const [editorFocus, setEditorFocus] = useState<number>(-1);
   const [finalUrl, setFinalUrl] = useState<string>("");
+
+  const [exportDuration, setExportDuration] = useState<number>(0);
   const [exportProgress, setExportProgress] = useState<number>(0);
+
+  const progressUpdateInterval = useRef<number | undefined>();
 
   useEffect(() => {
     const updateWindowWidth = () => {
@@ -162,6 +169,7 @@ export default function MainEditor({
             userId={userId}
             plan={plan}
             minutesRemaining={minutesRemaining}
+            setShowUpsellModal={setShowUpsellModal}
             setMinutesRemaining={setMinutesRemaining}
             setVideoData={setVideoData}
             setChanges={setChanges}
@@ -230,8 +238,27 @@ export default function MainEditor({
         <PopupWrapper setVisible={setShowExportModal}>
           <ExportModal
             finalUrl={finalUrl}
-            exportProgress={Math.round(exportProgress)}
+            exportProgress={round(exportProgress, 1)}
+            exportDuration={timeString(exportDuration)}
+            minutesRemaining={minutesRemaining}
+            plan={plan}
           />
+        </PopupWrapper>
+      )}
+      {showUpsellModal && (
+        <PopupWrapper setVisible={setShowUpsellModal}>
+          <div className="flex justify-center items-center bg-white rounded-lg shadow-lg p-6 max-w-3xl w-full">
+            <UpsellModal
+              title="Thanks for enjoying SimpleClip!"
+              subtitle={`You have ${round(
+                minutesRemaining,
+                0
+              )} of ${Plan.includedMinutes(
+                plan
+              )} free minutes remaining! Upgrade now and create content in minutes, not hours.`}
+              minutesRemaining={minutesRemaining}
+            />
+          </div>
         </PopupWrapper>
       )}
     </div>
@@ -279,6 +306,10 @@ export default function MainEditor({
   }
 
   async function handleExport() {
+    if (!videoData.length) {
+      alert("Export error: Did not find any videos in editor.");
+      return;
+    }
     setShowExportModal(true);
     if (!finalUrl) {
       const ffmpegTrimData = getFfmpegTrimData(
@@ -288,24 +319,27 @@ export default function MainEditor({
       );
       const expectedExportDuration =
         ffmpegTrimData.outputDuration * EXPORT_FACTOR;
+      setExportDuration(expectedExportDuration);
 
-      const progressPerSecond = (1 / expectedExportDuration) * 100;
-      const progressUpdateInterval = setInterval(() => {
+      const progressPerSecond =
+        ((1 / expectedExportDuration) * 100) / ticksPerSecond;
+      window.clearInterval(progressUpdateInterval.current);
+      progressUpdateInterval.current = window.setInterval(() => {
         setExportProgress((progress) => {
           if (progress + progressPerSecond > 99) {
-            clearInterval(progressUpdateInterval);
+            clearInterval(progressUpdateInterval.current);
             return 99;
           } else {
             return progress + progressPerSecond;
           }
         });
-      }, 1000);
+      }, 1000 / ticksPerSecond);
 
-      exportFinalVideo(ffmpegTrimData).then((res) => {
-        clearInterval(progressUpdateInterval);
-        setExportProgress(100);
-        setFinalUrl(res?.url ?? "");
-      });
+      // exportFinalVideo(ffmpegTrimData).then((res) => {
+      //   clearInterval(progressUpdateInterval.current);
+      //   setExportProgress(100);
+      //   setFinalUrl(res?.url ?? "");
+      // });
     }
   }
 
@@ -332,7 +366,7 @@ export default function MainEditor({
     const videoMinutes = videoDuration / 60;
     const paywalled = plan == Plan.FREE && minutesRemaining < videoMinutes;
     if (paywalled) {
-      // TODO: Show pop-up modal
+      setShowUpsellModal(true);
       return;
     }
     setToastData((td) => {

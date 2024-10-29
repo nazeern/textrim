@@ -99,6 +99,17 @@ export default async function SignupPage({
           </p>
         </form>
       </div>
+      <p className="text-xs text-gray-500 font-light mt-4">
+        By continuing, you agree to SimpleClip&apos;s{" "}
+        <a
+          className="underline"
+          target="_blank"
+          href="https://docs.google.com/document/d/1YbgSsqCas0Uhs4m-6q5CFT1I0LID1ZjV1qcnL7y85yE/edit?usp=sharing"
+        >
+          Terms of Service
+        </a>
+        , and to receive periodic emails with updates.
+      </p>
     </>
   );
 }

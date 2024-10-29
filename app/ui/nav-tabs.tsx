@@ -11,7 +11,7 @@ export default function NavTabs({ initial }: { initial?: string }) {
     return (
       <Link
         href="/pricing"
-        className="font-semibold hover:text-primary collapse md:visible mb-[2.5px]"
+        className="hidden md:block font-semibold hover:text-primary mb-[2.5px]"
       >
         Pricing
       </Link>
