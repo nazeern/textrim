@@ -46,6 +46,8 @@ RUN chown nextjs:nodejs .next
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+COPY /home/nazeern/service-key-speech-to-text.json /app/service-key-speech-to-text.json
+
 USER nextjs
 
 EXPOSE 3000
