@@ -9,16 +9,16 @@ import { redirect } from "next/navigation";
 export default async function Editor({
   params,
 }: {
-  params: { projectId: string };
+  params: Promise<{ projectId: string }>;
 }) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
     redirect("/login");
   }
-  const projectId = decodeBase64UUID(params.projectId);
+  const projectId = decodeBase64UUID((await params).projectId);
   const [loadedVideoData, { plan }, usageData] = await Promise.all([
     queryVideoData(projectId),
     getCurrentPlan(user.id),

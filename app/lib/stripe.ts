@@ -10,7 +10,7 @@ import { Plan } from "../ui/plan-card";
 export async function stripeCustomer(stripe: any, user: User): Promise<string | null> {
 
     // Get saved customer id
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data, error: fetchError } = await supabase
         .from('profiles')
         .select('stripe_id, name')

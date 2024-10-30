@@ -6,7 +6,7 @@ import NavTabs from "./nav-tabs";
 import { getCurrentPlan } from "../lib/profiles";
 
 export default async function Navbar() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

@@ -2,7 +2,7 @@ import PlanCard, { Plan } from "@/app/ui/plan-card";
 import { createClient } from "@/utils/supabase/server";
 
 export default async function PricingPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

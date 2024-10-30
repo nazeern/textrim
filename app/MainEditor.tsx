@@ -103,7 +103,7 @@ export default function MainEditor({
   const [toastData, setToastData] = useState<ToastData | null>(null);
 
   const [windowWidth, setWindowWidth] = useState<number>(0);
-  const isMounted = useRef<boolean>(false);
+  const firstRender = useRef<boolean>(true);
   const [savingToCloud, setSavingToCloud] = useState<SavingState>(
     SavingState.SAVED
   );
@@ -145,8 +145,8 @@ export default function MainEditor({
 
   // rebuild index on update when needed
   useEffect(() => {
-    if (isMounted.current == false) {
-      isMounted.current = true;
+    if (firstRender.current) {
+      firstRender.current = false;
     } else {
       setSavingToCloud(SavingState.CHANGED);
 

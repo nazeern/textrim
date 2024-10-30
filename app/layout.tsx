@@ -13,13 +13,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <NextTopLoader color="#0345fc" height={6} />
-      <body className={inter.className}>{children}</body>
+      <body>
+        <NextTopLoader color="#0345fc" height={6} />
+        {children}
+      </body>
     </html>
   );
 }

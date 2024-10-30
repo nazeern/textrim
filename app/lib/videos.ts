@@ -16,7 +16,7 @@ enum VideoDataStatus {
 
 /** Get VideoData for a given project. */
 export async function queryVideoData(projectId: string): Promise<VideoData[] | null> {
-    const supabase = createClient()
+    const supabase = await createClient()
 
     const { data, error } = await supabase
         .from('videos')
@@ -41,7 +41,7 @@ export async function queryVideoData(projectId: string): Promise<VideoData[] | n
 }
 
 export async function upsertVideoData(projectId: string, videoData: VideoData[]) {
-    const supabase = createClient()
+    const supabase = await createClient()
 
     const toUpsert = videoData
         .map((vd) => ({

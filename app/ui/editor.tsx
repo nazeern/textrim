@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useRef, useState } from "react";
+import { Dispatch, Fragment, SetStateAction, useRef, useState } from "react";
 import { WordInfo } from "../lib/videos";
 import { extractFilename, nestedListAt, range } from "@/app/lib/utils";
 import {
@@ -87,7 +87,7 @@ export default function TextEditor({
         {existingVideoData ? (
           videoData.map((vd) => {
             return (
-              <>
+              <Fragment key={vd.id}>
                 <p className="h-6 text-sm italic text-gray-500 w-full">
                   {extractFilename(vd.filename)}
                 </p>
@@ -113,7 +113,7 @@ export default function TextEditor({
                   }
                 })}
                 <div className="w-full h-6"></div>
-              </>
+              </Fragment>
             );
           })
         ) : (

@@ -15,7 +15,7 @@ export default async function SignupPage({
     redirectTo?: string;
   };
 }) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

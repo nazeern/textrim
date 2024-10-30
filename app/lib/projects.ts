@@ -14,7 +14,7 @@ export type Project = {
 }
 
 export async function queryProjects(userId: string): Promise<Project[] | null> {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data, error } = await supabase
         .from('projects')
         .select('id, name, created_at')
@@ -35,7 +35,7 @@ export async function insertProject(formData: FormData): Promise<boolean> {
     const user_id = formData.get('userId') as string
     const name = formData.get('name') as string
 
-    const supabase = createClient()
+    const supabase = await createClient()
     const { error } = await supabase
         .from('projects')
         .insert({name, user_id})

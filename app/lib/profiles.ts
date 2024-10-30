@@ -73,7 +73,7 @@ export async function subscribeUser(user: User, plan: Plan): Promise<SubscribeUs
 
 /* Query the customer id for a user. */
 export async function queryCustomerId(userId: string): Promise<string | null> {
-    const supabase = createClient()
+    const supabase = await createClient()
     
     const { data, error } = await supabase
         .from('profiles')
@@ -118,7 +118,7 @@ type UsageData = {
 }
 
 export async function queryUsage(userId: string): Promise<UsageData | null> {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data, error } = await supabase
         .from('projects')
         .select(`

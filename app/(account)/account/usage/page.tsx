@@ -7,7 +7,7 @@ import ProjectsList from "@/app/ui/projects-list";
 import { queryUsage } from "@/app/lib/profiles";
 
 export default async function UsagePage() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
