@@ -26,10 +26,6 @@ jobs:
       run: |
         echo "${{ secrets.SPEECH_TO_TEXT_SERVICE_KEY_B64 }}" | base64 -d > speech-to-text-service-key.json
 
-    - name: Print json file content
-      run: |
-        cat service-key-speech-to-text.json
-
     # Step 2: Log in to GitHub Container Registry (GHCR)
     - name: Log in to GitHub Container Registry
       run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
