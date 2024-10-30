@@ -22,10 +22,9 @@ export default async function SignupPage({
   if (user) {
     redirect("/projects");
   }
-  const error = searchParams?.error
-    ? decodeURIComponent(searchParams?.error)
-    : null;
-  const redirectTo = searchParams?.redirectTo;
+  const params = await searchParams;
+  const error = params?.error ? decodeURIComponent(params?.error) : null;
+  const redirectTo = params?.redirectTo;
 
   return (
     <>
