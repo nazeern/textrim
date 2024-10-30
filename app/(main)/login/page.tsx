@@ -10,11 +10,11 @@ import { redirect } from "next/navigation";
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: {
+  searchParams: Promise<{
     success?: string;
     error?: string;
     redirectTo?: string;
-  };
+  }>;
 }) {
   const supabase = await createClient();
   const {
@@ -23,14 +23,11 @@ export default async function LoginPage({
   if (user) {
     redirect("/projects");
   }
-  const success = searchParams?.success
-    ? decodeURIComponent(searchParams?.success)
-    : null;
-  const error = searchParams?.error
-    ? decodeURIComponent(searchParams?.error)
-    : null;
+  const params = await searchParams;
+  const success = params?.success ? decodeURIComponent(params?.success) : null;
+  const error = params?.error ? decodeURIComponent(params?.error) : null;
   const toastStyle = success ? "success" : "error";
-  const redirectTo = searchParams?.redirectTo;
+  const redirectTo = params?.redirectTo ?? "";
 
   return (
     <>

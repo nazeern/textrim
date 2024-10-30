@@ -21,14 +21,16 @@ export default async function ProjectsList({
             )}
           </tr>
         </thead>
-        {projects?.map((proj) => (
-          <ProjectRow
-            key={proj.encodedId}
-            project={proj}
-            excludeLink={excludeLink}
-          />
-        ))}
-        <EmptyProjectRow />
+        <tbody>
+          {projects?.map((proj) => (
+            <ProjectRow
+              key={proj.encodedId}
+              project={proj}
+              excludeLink={excludeLink}
+            />
+          ))}
+          <EmptyProjectRow />
+        </tbody>
       </table>
     </>
   );
