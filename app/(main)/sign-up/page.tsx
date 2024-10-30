@@ -10,10 +10,10 @@ import { createClient } from "@/utils/supabase/server";
 export default async function SignupPage({
   searchParams,
 }: {
-  searchParams: {
+  searchParams: Promise<{
     error?: string;
     redirectTo?: string;
-  };
+  }>;
 }) {
   const supabase = await createClient();
   const {
