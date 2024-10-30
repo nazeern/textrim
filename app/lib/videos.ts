@@ -136,8 +136,8 @@ export async function getVideoTranscript(filename: string, duration: number) {
         res?.alternatives?.[0].words?.forEach((wordInfo) => {
             const obj = {
                 word: wordInfo.word!,
-                start: (wordInfo.startTime!.seconds as Long).toNumber() + wordInfo.startTime!.nanos! / 1e9,
-                end: (wordInfo.endTime!.seconds as Long).toNumber() + wordInfo.endTime!.nanos! / 1e9,
+                start: Number(wordInfo.startTime!.seconds) + wordInfo.startTime!.nanos! / 1e9,
+                end: Number(wordInfo.endTime!.seconds) + wordInfo.endTime!.nanos! / 1e9,
                 skip: false,
                 index: i++,
             }
