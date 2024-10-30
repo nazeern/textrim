@@ -22,9 +22,9 @@ jobs:
       run: |
         echo "${{ secrets.ENV_VARS_PROD }}" > .env
 
-    - name: Create service key for Google speech to text
+    - name: Create service key JSON for Google speech to text
       run: |
-        echo "${{ secrets.SERVICE_KEY_JSON_SPEECH_TO_TEXT }}" > service-key-speech-to-text.json
+        echo "${{ secrets.SPEECH_TO_TEXT_SERVICE_KEY_B64 }}" | base64 -d > speech-to-text-service-key.json
 
     - name: Print json file content
       run: |

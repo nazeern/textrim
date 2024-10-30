@@ -45,7 +45,9 @@ RUN chown nextjs:nodejs .next
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY service-key-speech-to-text.json /app/service-key-speech-to-text.json
+
+# Load in Service Key for Google Speech to Text
+COPY speech-to-text-service-key.json /app/speech-to-text-service-key.json
 
 USER nextjs
 
