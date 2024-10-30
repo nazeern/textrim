@@ -6,13 +6,14 @@ import { redirect } from "next/navigation";
 export default async function UpgradePage({
   searchParams,
 }: {
-  searchParams: { plan?: string };
+  searchParams: Promise<{ plan?: string }>;
 }) {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const planString = searchParams.plan;
+  const params = await searchParams;
+  const planString = params.plan;
   if (!user) {
     const searchParams = new URLSearchParams();
     searchParams.set("redirectTo", `/upgrade?plan=${planString}`);
