@@ -335,11 +335,11 @@ export default function MainEditor({
         });
       }, 1000 / ticksPerSecond);
 
-      // exportFinalVideo(ffmpegTrimData).then((res) => {
-      //   clearInterval(progressUpdateInterval.current);
-      //   setExportProgress(100);
-      //   setFinalUrl(res?.url ?? "");
-      // });
+      exportFinalVideo(ffmpegTrimData).then((res) => {
+        clearInterval(progressUpdateInterval.current);
+        setExportProgress(100);
+        setFinalUrl(res?.url ?? "");
+      });
     }
   }
 
