@@ -24,7 +24,7 @@ jobs:
 
     - name: Create service key for Google speech to text
       run: |
-        echo "${{ secrets.SERVICE_KEY_JSON_SPEECH_TO_TEXT }}" > ./service-key-speech-to-text.json
+        echo "${{ secrets.SERVICE_KEY_JSON_SPEECH_TO_TEXT }}" > service-key-speech-to-text.json
 
     # Step 2: Log in to GitHub Container Registry (GHCR)
     - name: Log in to GitHub Container Registry
