@@ -169,6 +169,7 @@ export default function TextEditor({
    * If Backspace, store selection range to handle in onChange. */
   function handleKeyDown(e: any) {
     if (e.key === "z" && e.metaKey && e.shiftKey) {
+      redo();
     } else if (e.key === "z" && e.metaKey) {
       undo();
     } else if (!allowedKeys.has(e.key)) {
@@ -245,6 +246,14 @@ export default function TextEditor({
     }
   }
 
+  function applyChange(change: Change) {
+    if (change.type === "editor_change") {
+      updateTranscripts(change.skippedIndices, true);
+    } else if (change.type === "videos_change") {
+      setVideoData(arrayMove(videoData, change.oldIndex, change.newIndex));
+    }
+  }
+
   /** Unapply lastApplied change. -1 means use latest change. null means unapplied all changes. */
   function undo() {
     const unapply = changes.length - 1;
@@ -256,5 +265,13 @@ export default function TextEditor({
     }
   }
 
-  function redo() {}
+  function redo() {
+    const apply = redoStack.length - 1;
+    const change = redoStack[apply];
+    if (change) {
+      applyChange(change);
+      setRedoStack(redoStack.slice(0, -1));
+      setChanges((changes) => [...changes, change]);
+    }
+  }
 }

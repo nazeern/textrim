@@ -11,7 +11,7 @@ export default function Word({
   const format: CSSProperties = wordInfo.skip
     ? {
         textDecoration: "line-through",
-        color: "lightgray",
+        color: "gray",
       }
     : focus
     ? {
