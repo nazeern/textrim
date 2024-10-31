@@ -22,14 +22,8 @@ export function LogoTitle({
   fontColor?: "light" | "dark";
 }) {
   return (
-    <Link href="/" className="flex items-end gap-x-1">
-      <Image
-        src="/eureka-logo.jpeg"
-        height={36}
-        width={36}
-        alt="Trext Logo"
-        className="rounded-lg border border-primary"
-      />
+    <Link href="/" className="flex items-end gap-x-2">
+      <Image src="/favicon.ico" height={36} width={36} alt="Trext Logo" />
       <p
         className={clsx("text-2xl font-medium", {
           "text-secondary": fontColor == "light",
