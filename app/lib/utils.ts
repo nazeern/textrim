@@ -325,7 +325,7 @@ export function round(value: number, n: number = 2) {
 }
 
 export function currencyString(value: number) {
-  return "$" + round(value).toString()
+  return "$" + round(value / 100).toString()
 }
 
 export function extractFilename(filename: string): string {

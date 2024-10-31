@@ -130,6 +130,8 @@ export async function queryUsage(userId: string): Promise<UsageData | null> {
         .eq('user_id', userId)
     if (!data) { return null }
 
+    const totalCost = await upcomingCost(userId)
+
     const topProjects = data.map((proj) => ({
         encodedId: encodeBase64UUID(proj.id),
         name: proj.name,
@@ -148,7 +150,21 @@ export async function queryUsage(userId: string): Promise<UsageData | null> {
 
     return {
         totalMinutesTranscribed: round(totalMinutesTranscribed),
-        totalCost: calculateCost(totalMinutesTranscribed),
+        totalCost: (totalCost ?? 0),
         topProjects: topProjects,
     }
+}
+
+export async function upcomingCost(userId: string): Promise<number | null> {
+    if (!process.env.STRIPE_SECRET_KEY) { return null }
+    const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
+
+    const { customerId, plan } = await getCurrentPlan(userId)
+    if (!customerId) { return null }
+
+    const invoice = await stripe.invoices.retrieveUpcoming({
+        customer: customerId
+    })
+
+    return invoice.total
 }

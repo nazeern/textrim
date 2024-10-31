@@ -174,9 +174,12 @@ export default function TextEditor({
       undo();
     } else if (!allowedKeys.has(e.key)) {
       e.preventDefault();
+    } else if (e.key === "Backspace" && e.metaKey) {
+      e.preventDefault();
+      handleBackspace({ value: false });
     } else if (e.key === "Backspace") {
       e.preventDefault();
-      handleBackspace();
+      handleBackspace({ value: true });
     }
   }
 
@@ -194,13 +197,13 @@ export default function TextEditor({
     }
   }
 
-  function handleBackspace() {
+  function handleBackspace({ value = true }: { value?: boolean }) {
     const selection = getSelectedWords();
 
     const editorIndexToDelete = new Set<number>(
       range(selection.start, selection.end)
     );
-    updateTranscripts(editorIndexToDelete);
+    updateTranscripts(editorIndexToDelete, value);
     setChanges((changes) => {
       const updated: Change[] = [
         ...changes,
