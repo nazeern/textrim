@@ -85,6 +85,8 @@ export enum SavingState {
   SAVED,
 }
 
+const EXPORT_LIMIT_MINUTES = 10;
+
 export default function MainEditor({
   loadedVideoData,
   projectId,
@@ -111,6 +113,7 @@ export default function MainEditor({
   const [minutesRemaining, setMinutesRemaining] = useState<number>(
     loadedMinutesRemaining
   );
+  const [isPlaying, setIsPlaying] = useState(false);
   const [playFrom, setPlayFrom] = useState<PlayFrom | null>(null);
   const [changes, setChanges] = useState<Change[]>([]);
   const [allowedEmptyGap, setAllowedEmptyGap] = useState<number>(Infinity);
@@ -157,6 +160,21 @@ export default function MainEditor({
   }, [videoData]);
 
   const showSideRail = windowWidth >= 1024;
+  const exportTooLong = exportDuration == -1;
+
+  let upsellTitle, upsellDescription;
+  if (exportTooLong) {
+    upsellTitle = "Upgrade now for unlimited exports!";
+    upsellDescription = `On the free tier, export duration is limited to ${EXPORT_LIMIT_MINUTES} minutes. Try shortening the video, or sign up for a premium plan.`;
+  } else {
+    upsellTitle = "Thanks for enjoying SimpleClip!";
+    upsellDescription = `You have ${round(
+      minutesRemaining,
+      0
+    )} of ${Plan.includedMinutes(
+      plan
+    )} free minutes remaining! Upgrade now and create content in minutes, not hours.`;
+  }
 
   return (
     <div className="w-full flex">
@@ -215,10 +233,12 @@ export default function MainEditor({
           </button>
         </div>
         <VideoPlayer
+          isPlaying={isPlaying}
           videoData={videoData}
           playFrom={playFrom}
           allowedEmptyGap={allowedEmptyGap}
           windowWidth={windowWidth}
+          setIsPlaying={setIsPlaying}
           setPlayFrom={setPlayFrom}
           setEditorFocus={setEditorFocus}
         />
@@ -227,6 +247,7 @@ export default function MainEditor({
           changes={changes}
           savingToCloud={savingToCloud}
           editorFocus={editorFocus}
+          setIsPlaying={setIsPlaying}
           setVideoData={setVideoData}
           setPlayFrom={setPlayFrom}
           setChanges={setChanges}
@@ -249,13 +270,8 @@ export default function MainEditor({
         <PopupWrapper setVisible={setShowUpsellModal}>
           <div className="flex justify-center items-center bg-white rounded-lg shadow-lg p-6 max-w-3xl w-full">
             <UpsellModal
-              title="Thanks for enjoying SimpleClip!"
-              subtitle={`You have ${round(
-                minutesRemaining,
-                0
-              )} of ${Plan.includedMinutes(
-                plan
-              )} free minutes remaining! Upgrade now and create content in minutes, not hours.`}
+              title={upsellTitle}
+              subtitle={upsellDescription}
               minutesRemaining={minutesRemaining}
             />
           </div>
@@ -310,7 +326,6 @@ export default function MainEditor({
       alert("Export error: Did not find any videos in editor.");
       return;
     }
-    setShowExportModal(true);
     if (!finalUrl && !progressUpdateInterval.current) {
       const ffmpegTrimData = getFfmpegTrimData(
         videoData,
@@ -319,7 +334,17 @@ export default function MainEditor({
       );
       const expectedExportDuration =
         ffmpegTrimData.outputDuration * EXPORT_FACTOR;
-      setExportDuration(expectedExportDuration);
+      if (
+        plan == Plan.FREE &&
+        ffmpegTrimData.outputDuration > EXPORT_LIMIT_MINUTES * 60
+      ) {
+        setExportDuration(-1);
+        setShowUpsellModal(true);
+        return;
+      } else {
+        setExportDuration(expectedExportDuration);
+        setShowExportModal(true);
+      }
 
       const progressPerSecond =
         ((1 / expectedExportDuration) * 100) / ticksPerSecond;

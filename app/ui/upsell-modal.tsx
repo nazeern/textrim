@@ -42,19 +42,25 @@ export default function UpsellModal({
         <ArrowTopRightOnSquareIcon className="stroke-onprimary size-4" />
       </a>
       {/* Bullets */}
-      <div className="md:text-lg flex items-center italic itme">
+      <div className="md:text-lg flex items-center">
         <CheckBadgeIcon className="text-green-600 size-4 mr-3" />
         <span className="line-through mr-1">{round(minutesRemaining, 0)}</span>
-        <span className="italic font-bold mr-1">unlimited</span>
+        <span className="font-bold underline mr-1">Unlimited</span>
         transcribe minutes
       </div>
-      <div className="md:text-lg flex items-center italic">
+      <div className="md:text-lg flex items-center">
         <CheckBadgeIcon className="text-green-600 size-4 mr-3" />
-        Just <span className="font-bold mx-1">$0.08</span> per minute
+        Just <span className="font-bold underline mx-1">$0.08</span> per minute
       </div>
-      <div className="md:text-lg flex items-center italic">
+      <div className="md:text-lg flex items-center">
         <CheckBadgeIcon className="text-green-600 size-4 mr-3" />
-        Export in 4k video
+        <span className="font-bold underline mr-1">Unlimited</span> exports in
+        4k video
+      </div>
+      <div className="md:text-lg flex items-center">
+        <CheckBadgeIcon className="text-green-600 size-4 mr-3" />
+        <span className="font-bold underline mr-1">6x</span> faster exports with
+        Nvidia GPUs
       </div>
     </div>
   );

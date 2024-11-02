@@ -19,6 +19,7 @@ const allowedKeys = new Set([
   "ArrowDown",
   "ArrowRight",
   "ArrowUp",
+  " ",
 ]);
 
 export type Selection = {
@@ -33,6 +34,7 @@ export default function TextEditor({
   changes,
   savingToCloud,
   editorFocus,
+  setIsPlaying,
   setVideoData,
   setPlayFrom,
   setChanges,
@@ -42,6 +44,7 @@ export default function TextEditor({
   changes: Change[];
   savingToCloud: SavingState;
   editorFocus: number;
+  setIsPlaying: Dispatch<SetStateAction<boolean>>;
   setVideoData: Dispatch<SetStateAction<VideoData[]>>;
   setPlayFrom: Dispatch<SetStateAction<PlayFrom | null>>;
   setChanges: Dispatch<SetStateAction<Change[]>>;
@@ -180,6 +183,9 @@ export default function TextEditor({
     } else if (e.key === "Backspace") {
       e.preventDefault();
       handleBackspace({ value: true });
+    } else if (e.code === "Space") {
+      e.preventDefault();
+      setIsPlaying((isPlaying) => !isPlaying);
     }
   }
 

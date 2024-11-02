@@ -4,12 +4,11 @@ import { skipTo } from "../lib/utils";
 import { PlayIcon, PauseIcon, BackwardIcon } from "@heroicons/react/24/solid";
 import { intervalsToSkip, closeTo, wordAtTick } from "../lib/utils";
 
-export default function VideoPlayer({ videoData, playFrom, allowedEmptyGap, setPlayFrom, setEditorFocus, windowWidth }) {
+export default function VideoPlayer({ isPlaying, videoData, playFrom, allowedEmptyGap, setIsPlaying, setPlayFrom, setEditorFocus, windowWidth }) {
 
   const refreshRateMs = 100
 
   const [sourceIdx, setSourceIdx] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
   const videoRef = useRef();
   const intervalRef = useRef();
 

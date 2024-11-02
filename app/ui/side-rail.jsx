@@ -17,7 +17,7 @@ import {
 import { Thumbnail } from "./Thumbnail";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { getVideoUrl, getVideoTranscript, waitForAudioExtract } from "../lib/videos";
-import { calculateVideoDuration, delay, validateVideo, round } from "../lib/utils";
+import { calculateVideoDuration, delay, validateVideo, round, timeString } from "../lib/utils";
 import { sampleTranscriptionResponse } from "../lib/data";
 import { VideoDataStatus } from "../MainEditor";
 import { UPLOAD_FACTOR } from "./upload-status";
@@ -53,7 +53,6 @@ export default function SideRail(
         />
         Remove empty intervals
       </label> */}
-      <p>{`Minutes Remaining: ${round(minutesRemaining,0)}`}</p>
       {removingEmptyIntervals && (
         <label>
           longer than 
