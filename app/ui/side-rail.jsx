@@ -43,7 +43,7 @@ export default function SideRail(
   const removingEmptyIntervals = (allowedEmptyGap == Infinity) ? false : true;
 
   return (
-    <div className="h-full flex flex-col gap-y-1 mx-6">
+    <div className="h-full flex flex-col gap-y-3 mx-6">
       {/* <label>
         <input 
           type="checkbox"
@@ -102,6 +102,13 @@ export default function SideRail(
             ))}
           </SortableContext>
         </DndContext>
+      </div>
+      <div className="p-4 flex flex-col gap-y-3 rounded-lg border border-primary bg-primarybg">
+        <p className="font-bold text-lg">Controls</p>
+        <p><span className="font-bold">Delete:</span> Backspace</p>
+        <p><span className="font-bold">Restore:</span> &#8984; + Backspace</p>
+        <p><span className="font-bold">Undo:</span> &#8984; + Z</p>
+        <p><span className="font-bold">Redo:</span> &#8984; + Shift + Z</p>
       </div>
     </div>
   
