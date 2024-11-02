@@ -3,7 +3,7 @@ import { Lato } from "next/font/google";
 import "./globals.css";
 import NextTopLoader from "nextjs-toploader";
 
-const lato = Lato({ weight: "400", subsets: ["latin"] });
+const lato = Lato({ weight: ["400", "700"], subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "SimpleClip",

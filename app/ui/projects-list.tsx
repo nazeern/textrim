@@ -12,7 +12,7 @@ export default async function ProjectsList({
   return (
     <>
       <table className="w-full table-auto border-separate border-spacing-y-4">
-        <thead className="font-bold text-lg">
+        <thead className="font-extrabold text-lg">
           <tr>
             <td>Project Name</td>
             <td>Created On</td>

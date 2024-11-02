@@ -61,7 +61,7 @@ export async function subscribeUser(user: User, plan: Plan): Promise<SubscribeUs
     const subscription = await createStripeSubscription(stripe, customerId, priceId)
     if (!subscription) { return null }
 
-    const cleanedUp = await removeOtherSubscriptions(stripe, subscription.id)
+    const cleanedUp = await removeOtherSubscriptions(stripe, customerId, subscription.id)
     if (!cleanedUp) { console.log(`Failed to remove old subscriptions for customer ${customerId}`) }
 
     return {
@@ -113,8 +113,9 @@ export async function getCurrentPlan(userId?: string): Promise<CurrentPlanRespon
 
 type UsageData = {
     totalMinutesTranscribed: number,
-    totalCost: number,
+    totalCost: number | null,
     topProjects: Project[],
+    plan: Plan,
 }
 
 export async function queryUsage(userId: string): Promise<UsageData | null> {
@@ -130,7 +131,7 @@ export async function queryUsage(userId: string): Promise<UsageData | null> {
         .eq('user_id', userId)
     if (!data) { return null }
 
-    const totalCost = await upcomingCost(userId)
+    const { cost, plan } = await upcomingCost(userId)
 
     const topProjects = data.map((proj) => ({
         encodedId: encodeBase64UUID(proj.id),
@@ -150,21 +151,48 @@ export async function queryUsage(userId: string): Promise<UsageData | null> {
 
     return {
         totalMinutesTranscribed: round(totalMinutesTranscribed),
-        totalCost: (totalCost ?? 0),
+        totalCost: (plan == Plan.USAGE) ? cost : null,
         topProjects: topProjects,
+        plan: plan,
     }
 }
 
-export async function upcomingCost(userId: string): Promise<number | null> {
-    if (!process.env.STRIPE_SECRET_KEY) { return null }
+type UpcomingCostResponse = {
+    cost: number | null,
+    plan: Plan,
+}
+
+export async function upcomingCost(userId: string): Promise<UpcomingCostResponse> {
+    if (!process.env.STRIPE_SECRET_KEY) { 
+        return {
+            cost: null,
+            plan: Plan.FREE
+        }
+    }
     const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
 
     const { customerId, plan } = await getCurrentPlan(userId)
-    if (!customerId) { return null }
+    if (!customerId) { 
+        return {
+            cost: null,
+            plan: Plan.FREE
+        }
+     }
 
-    const invoice = await stripe.invoices.retrieveUpcoming({
-        customer: customerId
-    })
+    let invoice;
+    try {
+        invoice = await stripe.invoices.retrieveUpcoming({
+            customer: customerId
+        })
+    } catch (error) {
+        return {
+            cost: null,
+            plan: Plan.FREE,
+        }
+    }
+    return {
+        cost: invoice.total,
+        plan: plan
+    }
 
-    return invoice.total
 }

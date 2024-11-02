@@ -5,6 +5,7 @@ import { User } from "@supabase/auth-js";
 import { round } from "./utils";
 import { getCurrentPlan, queryCustomerId } from "./profiles";
 import { Plan } from "../ui/plan-card";
+import { revalidatePath } from "next/cache";
 
 /* Try to get the existing stripe customer id. Else, create a new Stripe customer.*/
 export async function stripeCustomer(stripe: any, user: User): Promise<string | null> {
@@ -72,8 +73,9 @@ export async function createStripeSubscription(stripe: any, customerId: string, 
 
 
 /* Remove old subscriptions. */
-export async function removeOtherSubscriptions(stripe: any, keep: string): Promise<boolean> {
+export async function removeOtherSubscriptions(stripe: any, customerId: string, keep: string): Promise<boolean> {
     const subscriptions = await stripe.subscriptions.list({
+        customer: customerId,
         limit: 3,
     })
     const deleteIds: string[] = subscriptions.data
@@ -111,3 +113,16 @@ export async function stripeMeterEvent(userId: string, value: number): Promise<b
     }
     return true
   }
+
+
+  export async function unsubscribeUser(user: User): Promise<boolean> {
+    if (!process.env.STRIPE_SECRET_KEY) { return false }
+    const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
+
+    const customerId = await stripeCustomer(stripe, user)
+    if (!customerId) { return false }
+    const removed = removeOtherSubscriptions(stripe, customerId, "")
+
+    revalidatePath('/account/usage', 'page')
+    return removed
+  } 

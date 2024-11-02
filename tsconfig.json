@@ -34,7 +34,7 @@
     "**/*.tsx",
     "**/*.jsx",
     ".next/types/**/*.ts"
-  ],
+, "app/ui/client-button.tsx]"  ],
   "exclude": [
     "node_modules"
   ]

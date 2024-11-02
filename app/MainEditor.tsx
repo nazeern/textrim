@@ -311,7 +311,7 @@ export default function MainEditor({
       return;
     }
     setShowExportModal(true);
-    if (!finalUrl) {
+    if (!finalUrl && !progressUpdateInterval.current) {
       const ffmpegTrimData = getFfmpegTrimData(
         videoData,
         projectId,
@@ -336,6 +336,7 @@ export default function MainEditor({
       }, 1000 / ticksPerSecond);
 
       exportFinalVideo(ffmpegTrimData).then((res) => {
+        console.log(res);
         clearInterval(progressUpdateInterval.current);
         setExportProgress(100);
         setFinalUrl(res?.url ?? "");
