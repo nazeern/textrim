@@ -332,6 +332,7 @@ export default function MainEditor({
         projectId,
         allowedEmptyGap
       );
+      console.log(ffmpegTrimData);
       const expectedExportDuration =
         ffmpegTrimData.outputDuration * EXPORT_FACTOR;
       if (
@@ -366,6 +367,8 @@ export default function MainEditor({
         setExportProgress(100);
         setFinalUrl(res?.url ?? "");
       });
+    } else {
+      setShowExportModal(true);
     }
   }
 
