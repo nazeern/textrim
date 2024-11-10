@@ -21,6 +21,11 @@ export default function RootLayout({
         <NextTopLoader color="#0345fc" height={6} />
         {children}
       </body>
+      <script
+        defer
+        src="https://static.cloudflareinsights.com/beacon.min.js"
+        data-cf-beacon='{"token": "9c189176966a495d9c938923d1f19393"}'
+      ></script>
     </html>
   );
 }
