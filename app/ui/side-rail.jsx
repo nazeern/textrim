@@ -97,6 +97,7 @@ export default function SideRail(
                 status={obj.status}
                 text={obj.transcript?.map((word) => word.word).join(" ")}
                 duration={obj.duration}
+                projectId={projectId}
                 setVideoData={setVideoData}
               />
             ))}

@@ -61,6 +61,24 @@ export async function upsertVideoData(projectId: string, videoData: VideoData[])
     return toUpsert
 }
 
+
+
+export async function deleteVideo(filename: string, projectId: string): Promise<string | null> {
+    const supabase = await createClient()
+    
+    const { data, error } = await supabase
+        .from('videos')
+        .delete()
+        .eq('filename', filename)
+        .eq('project_id', projectId)
+    
+    if (error) {
+        return "Failed to delete video. Please reload and try again."
+    } else {
+        return null
+    }
+}
+
 /** Generate a source URL for a video file in Google Cloud Storage. */
 export async function getVideoUrl(
     filename: string,

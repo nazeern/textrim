@@ -2,10 +2,12 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { ArrowUturnLeftIcon } from "@heroicons/react/24/solid";
+import { ArrowUturnLeftIcon, CheckIcon, TrashIcon } from "@heroicons/react/24/outline";
 import UploadStatus from "./upload-status";
+import { deleteVideo } from "../lib/videos";
+import { useState } from "react";
 
-export const Thumbnail = ({ id, position, text, status, duration, setVideoData }) => {
+export const Thumbnail = ({ id, position, text, status, duration, projectId, setVideoData }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id, animateLayoutChanges: () => false });
 
@@ -13,6 +15,8 @@ export const Thumbnail = ({ id, position, text, status, duration, setVideoData }
     transition,
     transform: CSS.Transform.toString(transform),
   };
+
+  const [needsConfirm, setNeedsConfirm] = useState(false)
 
   return (
     <div
@@ -24,22 +28,25 @@ export const Thumbnail = ({ id, position, text, status, duration, setVideoData }
     >
       <UploadStatus text={text} status={status} duration={duration} />
       <button
-        onMouseDown={restoreClick}
+        onMouseDown={async () => await deleteClick()}
         className="absolute top-1 right-1 p-1 bg-primarybg border border-primary rounded-md opacity-0 group-hover:opacity-100 hover:bg-blue-100 transition-opacity"
       >
-        <ArrowUturnLeftIcon className="size-5" />
+        {needsConfirm ? <CheckIcon className="size-5" /> : <TrashIcon className="size-5" />}
       </button>
     </div>
   )
 
-  function restoreClick() {
-    setVideoData(videoData => videoData.map((vd, tsIndex) => ({
-      ...vd,
-      transcript: vd.transcript.map((wordInfo) => ({
-        ...wordInfo,
-        skip: (tsIndex == position) ? false : wordInfo.skip
-      }))
-    })))
+  async function deleteClick() {
+    if (!needsConfirm) {
+      setNeedsConfirm(true)
+      return
+    }
+    setVideoData(videoData => videoData.filter((vd) => id !== vd.id))
+    const errorMsg = await deleteVideo(id, projectId)
+    if (errorMsg) {
+      alert(errorMsg)
+      return
+    }
   }
 
 

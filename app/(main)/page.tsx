@@ -70,9 +70,12 @@ export default async function Landing() {
       <Testimonials />
       <p className="text-5xl mt-48 mb-8">Frequently Asked Questions</p>
       <FAQ />
-      <p className="text-5xl md:text-7xl font-medium mt-24 mb-8">
+      <p className="text-xl md:text-7xl font-medium mt-24 mb-4">
         Create content in{" "}
         <span className="underline decoration-primary">minutes.</span>
+      </p>
+      <p className="text-2xl md:text-4xl font-medium w-full max-w-2xl mb-12 leading-loose">
+        Get started for free!
       </p>
       <div className="flex items-center gap-4">
         <Link

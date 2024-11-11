@@ -108,14 +108,14 @@ export default function TextEditor({
                     );
                   } else if (!wordInfo.word && durationSeconds > 5) {
                     return (
-                      <>
+                      <Fragment key={index}>
                         <Gap
                           key={index}
                           wordInfo={wordInfo}
                           focus={wordInfo.index == editorFocus}
                         />
                         <div className="w-full h-6"></div>
-                      </>
+                      </Fragment>
                     );
                   } else {
                     return (

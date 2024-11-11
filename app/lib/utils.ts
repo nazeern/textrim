@@ -256,6 +256,8 @@ export function changeExtension(filename: string, to: string): string {
   }
 }
 
+const BUF = 0.3
+
 /** The google transcript returns words, we add in the empty spaces. */
 export function processVideoTranscript(transcript: WordInfo[], duration: number): WordInfo[] {
   const result = []
@@ -263,20 +265,24 @@ export function processVideoTranscript(transcript: WordInfo[], duration: number)
   let lastWordEnd = 0.0
   let i = 0
   for (const wordInfo of transcript) {
-    if (wordInfo.start - lastWordEnd > 0) {
+    const start = Math.max(0, wordInfo.start - BUF)
+    const end = Math.min(duration, wordInfo.end + BUF)
+    if (start - lastWordEnd > 0) {
       result.push({
         word: '',
         start: lastWordEnd,
-        end: wordInfo.start,
+        end: start,
         index: i++,
         skip: false,
       })
     }
     result.push({
       ...wordInfo,
+      start: start,
+      end: end,
       index: i++,
     })
-    lastWordEnd = wordInfo.end
+    lastWordEnd = end
   }
   if (duration - lastWordEnd) {
     result.push({
