@@ -95,6 +95,7 @@ export default function TextEditor({
                   {extractFilename(vd.filename)}
                 </p>
                 {vd.transcript?.map((wordInfo, index) => {
+                  const durationSeconds = wordInfo.end - wordInfo.start;
                   if (hideSkippedWords && wordInfo.skip) {
                     return null;
                   } else if (wordInfo.word) {
@@ -104,6 +105,17 @@ export default function TextEditor({
                         wordInfo={wordInfo}
                         focus={wordInfo.index == editorFocus}
                       />
+                    );
+                  } else if (!wordInfo.word && durationSeconds > 5) {
+                    return (
+                      <>
+                        <Gap
+                          key={index}
+                          wordInfo={wordInfo}
+                          focus={wordInfo.index == editorFocus}
+                        />
+                        <div className="w-full h-6"></div>
+                      </>
                     );
                   } else {
                     return (

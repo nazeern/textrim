@@ -65,7 +65,7 @@ export default function SideRail(
            second(s)
         </label>
       )}
-      <div className="flex flex-col gap-y-2 w-64 border border-primary p-1 h-3/4 rounded-md overflow-y-scroll">
+      <div className="flex flex-col gap-y-2 w-64 border border-primary p-1 h-2/3 rounded-md overflow-y-scroll">
         <label 
           htmlFor="videoFile"
           className="flex justify-center items-center text-onprimary bg-primary py-2 rounded-lg hover:cursor-pointer hover:bg-primaryhov"
