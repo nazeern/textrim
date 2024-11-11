@@ -161,7 +161,6 @@ export function intervalsToKeep(transcript: WordInfo[] | null, allowedEmptyGap: 
   const keepIntervals = []
   
   const wordsToKeep = transcript.filter((wordInfo) => (wordInfo.word || wordInfo.end - wordInfo.start <= allowedEmptyGap) && !wordInfo.skip)
-  const outputDuration = wordsToKeep.reduce((currValue, nextItem) => currValue + nextItem.end - nextItem.start, 0)
   let interval: Interval | null = null
   for (const wordInfo of wordsToKeep) {
     if (!interval) {
@@ -176,7 +175,8 @@ export function intervalsToKeep(transcript: WordInfo[] | null, allowedEmptyGap: 
   if (interval) {
     keepIntervals.push(interval)
   }
-  
+
+  const outputDuration = keepIntervals.reduce((currValue, nextInterval) => currValue + nextInterval.end - nextInterval.start, 0)
   return [keepIntervals, outputDuration]
 }
 
@@ -302,6 +302,9 @@ export function closeTo(a: number, b: number, dist: number) {
 }
 
 export function timeString(totalSeconds: number): string {
+  if (totalSeconds == 0) {
+    return "0s"
+  }
   const rounded = round(totalSeconds, 1)
   const minutes = Math.floor(rounded / 60)
   const seconds = totalSeconds <= 0.94 ? round(rounded % 60, 1) : round(rounded % 60, 0)

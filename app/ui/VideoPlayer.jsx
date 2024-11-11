@@ -82,6 +82,7 @@ export default function VideoPlayer({ isPlaying, videoData, playFrom, allowedEmp
           nextVideoOrStop();
         }}
       />
+      {/* Player Controls */}
       <div className="flex justify-center gap-x-2 mt-1">
         <button
           className="rounded-md bg-primary p-2"

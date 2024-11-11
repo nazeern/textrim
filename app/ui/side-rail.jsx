@@ -17,13 +17,16 @@ import {
 import { Thumbnail } from "./Thumbnail";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { getVideoUrl, getVideoTranscript, waitForAudioExtract } from "../lib/videos";
-import { calculateVideoDuration, delay, validateVideo, round, timeString } from "../lib/utils";
+import { calculateVideoDuration, delay, validateVideo, round, timeString, calculateProjectLength, getFfmpegTrimData } from "../lib/utils";
 import { sampleTranscriptionResponse } from "../lib/data";
 import { VideoDataStatus } from "../MainEditor";
 import { UPLOAD_FACTOR } from "./upload-status";
 import { stripeMeterEvent } from "../lib/stripe";
 import { Plan } from "@/app/ui/plan-card";
+import { useCallback, useState, useEffect } from "react";
+import { debounce } from "lodash";
 
+const WAIT_FOR_INACTIVITY_SECONDS = 5
 
 export default function SideRail(
   { videoData, allowedEmptyGap, userId, projectId, plan, minutesRemaining, setShowUpsellModal, setMinutesRemaining, setVideoData, setChanges, setAllowedEmptyGap, setToastData }
@@ -40,7 +43,30 @@ export default function SideRail(
     })
   );
 
+  const [totalProjectLength, setTotalProjectLength] = useState(null)
+
+  const debouncedCalculateProjectLength = useCallback(
+    debounce(
+      (videoData, projectId, allowedEmptyGap) => {
+        console.log("Recalculating total project length...")
+        const { outputDuration } = getFfmpegTrimData(videoData, projectId, allowedEmptyGap)
+        setTotalProjectLength(outputDuration)
+      },
+      WAIT_FOR_INACTIVITY_SECONDS * 1000,
+      {
+        leading: false,
+        trailing: true,
+      }
+    ),
+    []
+  );
+
   const removingEmptyIntervals = (allowedEmptyGap == Infinity) ? false : true;
+
+  useEffect(() => {
+    setTotalProjectLength(null)
+    debouncedCalculateProjectLength(videoData, projectId, allowedEmptyGap)
+  }, [videoData])
 
   return (
     <div className="h-full flex flex-col gap-y-3 mx-6">
@@ -65,6 +91,7 @@ export default function SideRail(
            second(s)
         </label>
       )}
+      <p>Total Project Length: {totalProjectLength == null ? "Calculating..." : timeString(totalProjectLength)}</p>
       <div className="flex flex-col gap-y-2 w-64 border border-primary p-1 h-2/3 rounded-md overflow-y-scroll">
         <label 
           htmlFor="videoFile"
