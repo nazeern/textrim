@@ -170,8 +170,8 @@ type ExportVideoResponse = {
     error: string | null,
 }
 
-export async function exportFinalVideo(ffmpegTrimData: ExportData): Promise<ExportVideoResponse> {
-    const resource = process.env.EXPORT_VIDEO_POST_URL
+export async function exportFinalVideo(ffmpegTrimData: ExportData, gpu: boolean): Promise<ExportVideoResponse> {
+    const resource = gpu ? process.env.EXPORT_VIDEO_POST_URL_GPU : process.env.EXPORT_VIDEO_POST_URL
     if (!resource) {
         return {
             url: null,

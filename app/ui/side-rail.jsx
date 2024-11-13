@@ -15,7 +15,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { Thumbnail } from "./Thumbnail";
-import { PlusIcon } from "@heroicons/react/24/solid";
+import { ChevronLeftIcon, PlusIcon } from "@heroicons/react/24/solid";
 import { getVideoUrl, getVideoTranscript, waitForAudioExtract } from "../lib/videos";
 import { calculateVideoDuration, delay, validateVideo, round, timeString, calculateProjectLength, getFfmpegTrimData } from "../lib/utils";
 import { sampleTranscriptionResponse } from "../lib/data";
@@ -25,6 +25,7 @@ import { stripeMeterEvent } from "../lib/stripe";
 import { Plan } from "@/app/ui/plan-card";
 import { useCallback, useState, useEffect } from "react";
 import { debounce } from "lodash";
+import Link from "next/link";
 
 const WAIT_FOR_INACTIVITY_SECONDS = 5
 
@@ -69,7 +70,11 @@ export default function SideRail(
   }, [videoData])
 
   return (
-    <div className="h-full flex flex-col gap-y-3 mx-6">
+    <div className="h-full flex flex-col mx-6">
+      <Link href="/projects" className="flex gap-1 items-center text-gray-600 mb-2">
+        <ChevronLeftIcon className="size-5" />
+        Back
+      </Link>
       {/* <label>
         <input 
           type="checkbox"
@@ -91,7 +96,7 @@ export default function SideRail(
            second(s)
         </label>
       )}
-      <p>Total Project Length: {totalProjectLength == null ? "Calculating..." : timeString(totalProjectLength)}</p>
+      <p className="text-center">Total Project Length: {totalProjectLength == null ? "Calculating..." : timeString(totalProjectLength)}</p>
       <div className="flex flex-col gap-y-2 w-64 border border-primary p-1 h-2/3 rounded-md overflow-y-scroll">
         <label 
           htmlFor="videoFile"

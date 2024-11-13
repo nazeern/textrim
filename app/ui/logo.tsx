@@ -18,11 +18,13 @@ export function Logo() {
 
 export function LogoTitle({
   fontColor = "dark",
+  href = "/",
 }: {
   fontColor?: "light" | "dark";
+  href?: string;
 }) {
   return (
-    <Link href="/" className="flex items-end gap-x-2">
+    <Link href={href} className="flex items-end gap-x-2">
       <Image src="/favicon.ico" height={36} width={36} alt="Trext Logo" />
       <p
         className={clsx("text-2xl font-medium", {

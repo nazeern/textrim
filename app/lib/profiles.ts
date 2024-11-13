@@ -99,11 +99,18 @@ export async function getCurrentPlan(userId?: string): Promise<CurrentPlanRespon
     if (!process.env.STRIPE_SECRET_KEY) { return { plan: Plan.FREE } }
     const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
 
-    const subscriptions = await stripe.subscriptions.list({
-        customer: customerId,
-        status: 'active',
-        limit: 1,
-    })
+    let subscriptions;
+    try {
+        subscriptions = await stripe.subscriptions.list({
+            customer: customerId,
+            status: 'active',
+            limit: 1,
+        })
+    } catch (error) {
+        return {
+            plan: Plan.FREE
+        }
+    }
     const priceId = subscriptions.data?.[0]?.items?.data?.[0]?.price?.id
     return { 
         customerId: customerId,

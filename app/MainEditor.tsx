@@ -361,7 +361,8 @@ export default function MainEditor({
         });
       }, 1000 / ticksPerSecond);
 
-      exportFinalVideo(ffmpegTrimData).then((res) => {
+      const gpu = true;
+      exportFinalVideo(ffmpegTrimData, gpu).then((res) => {
         console.log(res);
         clearInterval(progressUpdateInterval.current);
         setExportProgress(100);
