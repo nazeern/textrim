@@ -5,7 +5,7 @@ import {
 } from "@heroicons/react/24/solid";
 import ReactPlayer from "react-player";
 import { Plan } from "./plan-card";
-import { round } from "../lib/utils";
+import { cn, round } from "../lib/utils";
 import Link from "next/link";
 import UpsellModal from "./upsell-modal";
 
@@ -15,12 +15,16 @@ export function ExportModal({
   exportDuration,
   minutesRemaining,
   plan,
+  captionsUrl,
+  createCaptions,
 }: {
   finalUrl: string;
   exportProgress: number;
   exportDuration: string;
   minutesRemaining: number;
   plan: Plan;
+  captionsUrl: string;
+  createCaptions: () => void;
 }) {
   const loading = exportProgress != 100;
   const text = loading ? "Export in Progress" : "Export Complete!";
@@ -35,16 +39,29 @@ export function ExportModal({
       className="flex flex-col items-center gap-y-1 bg-white rounded-lg shadow-lg p-6 max-w-2xl w-full"
       onClick={(e) => e.stopPropagation()}
     >
-      {finalUrl && (
+      <div className="flex gap-3 items-center">
         <a
           href={finalUrl}
           target="_blank"
           download="output.mp4"
-          className="bg-primary text-onprimary p-2 rounded"
+          className={cn("bg-primary text-onprimary p-2 rounded", {
+            "pointer-events-none bg-blue-400": !finalUrl,
+          })}
         >
           Download
         </a>
-      )}
+        <a
+          onClick={createCaptions}
+          href={captionsUrl}
+          target="_blank"
+          download="captions.srt"
+          className={cn("bg-primary text-onprimary p-2 rounded", {
+            "pointer-events-none bg-blue-400": captionsUrl === "loading",
+          })}
+        >
+          Captions
+        </a>
+      </div>
       <div className="flex gap-x-1 items-center">
         <h3 className="text-lg font-semibold">{text}</h3>
         {icon}

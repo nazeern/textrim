@@ -153,10 +153,10 @@ export function wordAtTick(tick: number, transcript: WordInfo[]): number | null 
   return null;
 }
 
-/** What intervals do we want from the transcript? */
-export function intervalsToKeep(transcript: WordInfo[] | null, allowedEmptyGap: number): [Interval[], number] {
+/** What intervals do we want from the transcript? Also, what captions are needed? */
+export function intervalsToKeep(transcript: WordInfo[] | null, allowedEmptyGap: number, returnCaptions: boolean = false, maxCaptionLength: number = 30): [Interval[], number, Caption[]] {
   if (!transcript) {
-    return [[], 0]
+    return [[], 0, []]
   }
   const keepIntervals = []
   
@@ -175,9 +175,34 @@ export function intervalsToKeep(transcript: WordInfo[] | null, allowedEmptyGap: 
   if (interval) {
     keepIntervals.push(interval)
   }
-
   const outputDuration = keepIntervals.reduce((currValue, nextInterval) => currValue + nextInterval.end - nextInterval.start, 0)
-  return [keepIntervals, outputDuration]
+
+  if (!returnCaptions) {
+    return [keepIntervals, outputDuration, []]
+  }
+
+  // Combine words into caption, separating if they don't flow together, or too many characters.
+  const captions: Caption[] = []
+
+  const onlyWords = wordsToKeep.filter((wordInfo) => wordInfo.word !== "")
+  let caption: Caption | null = null
+  for (const wordInfo of onlyWords) {
+    if (!caption) {
+      caption = { phrase: wordInfo.word, start: wordInfo.start, end: wordInfo.end }
+    } else if (wordInfo.start - caption.end <= 0 && wordInfo.word.length + caption.phrase.length <= maxCaptionLength) {
+      caption.end = wordInfo.end
+      caption.phrase += (" " + wordInfo.word)
+    } else {
+      caption.end = Math.min(caption.end, wordInfo.start)
+      captions.push(caption)
+      caption = { phrase: wordInfo.word, start: wordInfo.start, end: wordInfo.end }
+    }
+  }
+  if (caption) {
+    captions.push(caption)
+  }
+
+  return [keepIntervals, outputDuration, captions]
 }
 
 /** What intervals should the VideoPlayer skip over? */
@@ -245,6 +270,40 @@ export function getFfmpegTrimData(videoData: VideoData[], projectId: string, all
   }
 }
 
+function srtFormat(seconds: number) {
+  const hours = Math.floor(seconds / 3600).toString().padStart(2, '0')
+  const minutes = Math.floor(seconds / 60).toString().padStart(2, '0')
+  const sec = Math.floor(seconds).toString().padStart(2, '0')
+  const millis = Math.floor((seconds % 1) * 1000).toString().padStart(3, '0')
+
+  return `${hours}:${minutes}:${sec},${millis}`
+}
+
+export function generateCaptionsFile(videoData: VideoData[], allowedEmptyGap: number) {
+  
+  let baseDuration = 0;
+  const captions: Caption[] = []
+  for (const vd of videoData) {
+    const [_, videoDuration, videoCaptions] = intervalsToKeep(vd.transcript, allowedEmptyGap, true)
+    for (const cap of videoCaptions) {
+      captions.push({
+        phrase: cap.phrase,
+        start: baseDuration + cap.start,
+        end: baseDuration + cap.end,
+      })
+    }
+    baseDuration += videoDuration
+  }
+
+  const srtString = captions.map(({ phrase, start, end }, index) => `${index + 1}\n${srtFormat(start)} --> ${srtFormat(end)}\n${phrase}\n`).join("\n")
+  console.log(srtString)
+  
+  const blob = new Blob([srtString], { type: 'text/plain' })
+  const srtUrl = URL.createObjectURL(blob)
+
+  return srtUrl
+}
+
 export function changeExtension(filename: string, to: string): string {
   const dotIndex = filename.lastIndexOf(".");
   if (dotIndex === -1) {
@@ -256,7 +315,7 @@ export function changeExtension(filename: string, to: string): string {
   }
 }
 
-const BUF = 0.3
+const BUF = 0.1
 
 /** The google transcript returns words, we add in the empty spaces. */
 export function processVideoTranscript(transcript: WordInfo[], duration: number): WordInfo[] {
@@ -265,8 +324,8 @@ export function processVideoTranscript(transcript: WordInfo[], duration: number)
   let lastWordEnd = 0.0
   let i = 0
   for (const wordInfo of transcript) {
-    const start = Math.max(0, wordInfo.start - BUF)
-    const end = Math.min(duration, wordInfo.end + BUF)
+    const start = Math.max(0, round(wordInfo.start - BUF))
+    const end = Math.min(duration, round(wordInfo.end + BUF))
     if (start - lastWordEnd > 0) {
       result.push({
         word: '',
@@ -340,3 +399,9 @@ export function currencyString(value: number) {
 export function extractFilename(filename: string): string {
   return filename.slice(filename.indexOf("_") + 1)
 }
+
+type Caption = {
+  phrase: string;
+  start: number;
+  end: number;
+};

@@ -17,7 +17,9 @@ import { PopupWrapper } from "./ui/popup-wrapper";
 import { ExportModal } from "./ui/export-modal";
 import {
   calculateVideoDuration,
+  generateCaptionsFile,
   getFfmpegTrimData,
+  intervalsToKeep,
   round,
   timeString,
   validateVideo,
@@ -119,6 +121,7 @@ export default function MainEditor({
   const [allowedEmptyGap, setAllowedEmptyGap] = useState<number>(Infinity);
   const [editorFocus, setEditorFocus] = useState<number>(-1);
   const [finalUrl, setFinalUrl] = useState<string>("");
+  const [captionsUrl, setCaptionsUrl] = useState<string>("");
 
   const [exportDuration, setExportDuration] = useState<number>(0);
   const [exportProgress, setExportProgress] = useState<number>(0);
@@ -263,6 +266,8 @@ export default function MainEditor({
             exportDuration={timeString(exportDuration)}
             minutesRemaining={minutesRemaining}
             plan={plan}
+            captionsUrl={captionsUrl}
+            createCaptions={createCaptions}
           />
         </PopupWrapper>
       )}
@@ -486,5 +491,11 @@ export default function MainEditor({
       Math.max(0, minutesRemaining - videoMinutes)
     );
     await stripeMeterEvent(userId, videoMinutes);
+  }
+
+  function createCaptions() {
+    setCaptionsUrl("loading");
+    const url = generateCaptionsFile(videoData, allowedEmptyGap);
+    setCaptionsUrl(url);
   }
 }
