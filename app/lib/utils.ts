@@ -184,19 +184,25 @@ export function intervalsToKeep(transcript: WordInfo[] | null, allowedEmptyGap: 
   // Combine words into caption, separating if they don't flow together, or too many characters.
   const captions: Caption[] = []
 
-  const onlyWords = wordsToKeep.filter((wordInfo) => wordInfo.word !== "")
+  // Track how much time elapsed, and how long the word is. This decides the captions.
+  let elapsed: number = 0.0
   let caption: Caption | null = null
-  for (const wordInfo of onlyWords) {
-    if (!caption) {
-      caption = { phrase: wordInfo.word, start: wordInfo.start, end: wordInfo.end }
-    } else if (wordInfo.start - caption.end <= 0 && wordInfo.word.length + caption.phrase.length <= maxCaptionLength) {
-      caption.end = wordInfo.end
-      caption.phrase += (" " + wordInfo.word)
-    } else {
-      caption.end = Math.min(caption.end, wordInfo.start)
-      captions.push(caption)
-      caption = { phrase: wordInfo.word, start: wordInfo.start, end: wordInfo.end }
+  for (let i = 0; i < wordsToKeep.length; i++) {
+    const wordInfo = wordsToKeep[i]
+    const lastWordInfo = wordsToKeep[i-1]
+    if (wordInfo.word !== "") {
+      const wordDuration = wordInfo.end - Math.max(wordInfo.start, lastWordInfo?.end ?? 0)
+      if (!caption) {
+        caption = { phrase: wordInfo.word, start: elapsed, end: elapsed + wordDuration }
+      } else if (wordInfo.start - lastWordInfo.end <= 0 && wordInfo.word.length + caption.phrase.length <= maxCaptionLength) {
+        caption.end = elapsed + wordDuration
+        caption.phrase += (" " + wordInfo.word)
+      } else {
+        captions.push(caption)
+        caption = { phrase: wordInfo.word, start: elapsed, end: elapsed + wordDuration }
+      }
     }
+    elapsed += wordInfo.end - Math.max(lastWordInfo?.end ?? 0, wordInfo.start)
   }
   if (caption) {
     captions.push(caption)
@@ -273,7 +279,7 @@ export function getFfmpegTrimData(videoData: VideoData[], projectId: string, all
 function srtFormat(seconds: number) {
   const hours = Math.floor(seconds / 3600).toString().padStart(2, '0')
   const minutes = Math.floor(seconds / 60).toString().padStart(2, '0')
-  const sec = Math.floor(seconds).toString().padStart(2, '0')
+  const sec = Math.floor(seconds % 60).toString().padStart(2, '0')
   const millis = Math.floor((seconds % 1) * 1000).toString().padStart(3, '0')
 
   return `${hours}:${minutes}:${sec},${millis}`
@@ -292,12 +298,12 @@ export function generateCaptionsFile(videoData: VideoData[], allowedEmptyGap: nu
         end: baseDuration + cap.end,
       })
     }
-    baseDuration += videoDuration
+    baseDuration = baseDuration + videoDuration
   }
 
   const srtString = captions.map(({ phrase, start, end }, index) => `${index + 1}\n${srtFormat(start)} --> ${srtFormat(end)}\n${phrase}\n`).join("\n")
   console.log(srtString)
-  
+
   const blob = new Blob([srtString], { type: 'text/plain' })
   const srtUrl = URL.createObjectURL(blob)
 

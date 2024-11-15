@@ -351,6 +351,7 @@ export default function MainEditor({
         setExportDuration(expectedExportDuration);
         setShowExportModal(true);
       }
+      return;
 
       const progressPerSecond =
         ((1 / expectedExportDuration) * 100) / ticksPerSecond;
