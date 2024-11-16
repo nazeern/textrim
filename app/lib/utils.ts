@@ -322,7 +322,7 @@ export function changeExtension(filename: string, to: string): string {
 }
 
 const START_BUF = 0.2
-const END_BUF = 0.2
+const END_BUF = 0.5
 
 
 /** The google transcript returns words, we add in the empty spaces. */
