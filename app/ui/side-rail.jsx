@@ -49,7 +49,7 @@ export default function SideRail(
   const debouncedCalculateProjectLength = useCallback(
     debounce(
       (videoData, projectId, allowedEmptyGap) => {
-        console.log("Recalculating total project length...")
+        // console.log("Recalculating total project length...")
         const { outputDuration } = getFfmpegTrimData(videoData, projectId, allowedEmptyGap)
         setTotalProjectLength(outputDuration)
       },

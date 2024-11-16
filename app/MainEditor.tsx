@@ -20,6 +20,7 @@ import {
   generateCaptionsFile,
   getFfmpegTrimData,
   intervalsToKeep,
+  intervalsToSkip,
   round,
   timeString,
   validateVideo,
