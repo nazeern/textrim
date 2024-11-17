@@ -3,12 +3,13 @@ import Link from "next/link";
 import Testimonials from "../ui/testimonials";
 import HowItWorksRow from "../ui/how-it-works";
 import FAQ from "../ui/faq";
+import { LogoTitle } from "../ui/logo";
 
 const bullets = ["Get started for free", "Zero install needed"];
 
 export default async function Landing() {
   return (
-    <div className="w-full max-w-7xl flex flex-col items-center gap-y-4 py-16 md:py-24 px-2 text-center">
+    <div className="w-full max-w-7xl flex flex-col items-center gap-y-4 pt-16 md:pt-24 px-2 text-center">
       <p className="text-5xl md:text-7xl font-medium mb-4">
         Create content in{" "}
         <span className="underline decoration-primary">minutes.</span>
@@ -101,6 +102,30 @@ export default async function Landing() {
           );
         })}
       </div>
+      {/* Footer */}
+      <footer className="bg-gray-800 text-white py-6 w-screen">
+        <div className="container mx-auto flex flex-col md:flex-row items-center justify-between">
+          {/* Logo and Title */}
+          <div className="flex items-center mb-4 md:mb-0">
+            <LogoTitle />
+          </div>
+          {/* Links */}
+          <div className="flex flex-col gap-3">
+            <Link
+              href="/privacy"
+              className="text-gray-400 hover:text-white transition duration-200"
+            >
+              Privacy Policy
+            </Link>
+            <Link
+              href="/terms"
+              className="text-gray-400 hover:text-white transition duration-200"
+            >
+              Terms & Conditions
+            </Link>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

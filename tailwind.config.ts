@@ -25,7 +25,9 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/typography'),
+  ],
   experimental: {
     optimizeUniversalDefaults: true,
   }
